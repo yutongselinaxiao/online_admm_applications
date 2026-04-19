@@ -658,6 +658,11 @@ def main() -> None:
         tokenizer = AutoTokenizer.from_pretrained(args.model, cache_dir=cache_dir)
         base_model = AutoModelForCausalLM.from_pretrained(args.model, cache_dir=cache_dir).to(device)
         model_label = args.model
+        cfg = base_model.config
+        model_max_pos = getattr(cfg, "n_positions", None) or getattr(cfg, "max_position_embeddings", None)
+        if model_max_pos is not None and args.block_size > model_max_pos:
+            print(f"[{args.model}] clamping --block-size {args.block_size} -> {model_max_pos} (model max context)")
+            args.block_size = int(model_max_pos)
         if args.corpus == "wikitext2":
             ids = load_wikitext2_ids(tokenizer, cache_dir)
             train_ids, test_ids = ids["train"], ids["test"]
