@@ -4,6 +4,7 @@ import argparse
 import copy
 import csv
 import math
+import os
 import time
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from run_llm_quantization_baselines import quantize_with_scale
 
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results" / "real_model_smoke"
+DEFAULT_CACHE_DIR = Path("/dataMeR2/yutong/hf_cache")
 
 
 SMOKE_TEXTS = [
@@ -53,6 +55,10 @@ def write_csv(path: Path, rows: list[dict]) -> None:
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+
+
+def safe_label(label: str) -> str:
+    return "".join(ch if ch.isalnum() or ch in "-_." else "__" for ch in label)
 
 
 def make_batches(tokenizer, block_size: int, max_batches: int, device: torch.device) -> list[torch.Tensor]:
@@ -299,6 +305,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-samples", type=int, default=128)
     parser.add_argument("--max-admm-iter", type=int, default=8)
     parser.add_argument("--methods", nargs="+", default=["fp32", "rtn", "admm_gptq"])
+    parser.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=DEFAULT_CACHE_DIR,
+        help="Hugging Face cache directory for downloaded model/tokenizer files.",
+    )
     parser.add_argument("--seed", type=int, default=0)
     return parser.parse_args()
 
@@ -308,6 +320,9 @@ def main() -> None:
     RESULTS.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     rows = []
+    cache_dir = args.cache_dir.expanduser().resolve()
+    os.environ.setdefault("HF_HOME", str(cache_dir))
+    os.environ.setdefault("TRANSFORMERS_CACHE", str(cache_dir))
     if args.random_tiny:
         torch.manual_seed(args.seed)
         config = GPT2Config(
@@ -323,8 +338,9 @@ def main() -> None:
         batches = make_random_batches(config.vocab_size, args.block_size, args.max_batches, device, args.seed)
         model_label = "random_tiny_gpt2"
     else:
-        tokenizer = AutoTokenizer.from_pretrained(args.model)
-        base_model = AutoModelForCausalLM.from_pretrained(args.model).to(device)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        tokenizer = AutoTokenizer.from_pretrained(args.model, cache_dir=cache_dir)
+        base_model = AutoModelForCausalLM.from_pretrained(args.model, cache_dir=cache_dir).to(device)
         batches = make_batches(tokenizer, args.block_size, args.max_batches, device)
         model_label = args.model
     calibration_inputs = collect_module_inputs(base_model, batches, args.max_modules, args.max_samples)
@@ -347,6 +363,7 @@ def main() -> None:
         row = {
             "model": model_label,
             "device": str(device),
+            "cache_dir": str(cache_dir),
             "method": method,
             "bits": args.bits if method != "fp32" else "",
             "loss": metrics["loss"],
@@ -366,19 +383,23 @@ def main() -> None:
             f"delta={row['delta_loss']:.4f} modules={row['num_quantized_modules']} "
             f"time={row['wall_time_sec']:.2f}s"
         )
-    write_csv(RESULTS / "real_model_smoke_summary.csv", rows)
-    write_text(
-        RESULTS / "real_model_smoke_findings.md",
+    summary_text = (
         "# Real Model Smoke Test\n\n"
         f"Model: `{model_label}`\n\n"
         f"Device: `{device}`\n\n"
+        f"Hugging Face cache: `{cache_dir}`\n\n"
         "This is a CPU/debug-scale smoke test on a tiny text corpus, not a final perplexity benchmark.\n\n"
         + "\n".join(
             f"- `{row['method']}`: loss `{row['loss']:.4f}`, ppl `{row['ppl']:.2f}`, delta loss `{row['delta_loss']:.4f}`, modules `{row['num_quantized_modules']}`"
             for row in rows
         )
-        + "\n",
+        + "\n"
     )
+    model_slug = safe_label(model_label)
+    write_csv(RESULTS / "real_model_smoke_summary.csv", rows)
+    write_csv(RESULTS / f"real_model_smoke_summary_{model_slug}.csv", rows)
+    write_text(RESULTS / "real_model_smoke_findings.md", summary_text)
+    write_text(RESULTS / f"real_model_smoke_findings_{model_slug}.md", summary_text)
     print(f"\nWrote real-model smoke outputs to {RESULTS}")
 
 

@@ -1,0 +1,4 @@
+model,device,cache_dir,method,bits,loss,ppl,delta_loss,num_eval_tokens,num_quantized_modules,mean_module_recon_error,mean_final_primal,mean_final_dual,mean_final_rho,wall_time_sec
+facebook/opt-125m,cuda,/dataMeR2/yutong/hf_cache,fp32,,5.0231781005859375,151.89326960961114,0.0,128,0,0.0,0.0,0.0,0.0,0.00521825160831213
+facebook/opt-125m,cuda,/dataMeR2/yutong/hf_cache,rtn,4,5.061751365661621,157.86675677066077,0.038573265075683594,128,24,0.11741785270472367,0.0,0.0,0.0,0.4134271601215005
+facebook/opt-125m,cuda,/dataMeR2/yutong/hf_cache,admm_gptq,4,5.079305171966553,160.6623844082413,0.056127071380615234,128,24,0.11349561440885736,0.14978442457115426,0.4395916867275829,1.8237523062112169,299.70751043315977
