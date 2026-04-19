@@ -1,0 +1,1063 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\shrink}{\mathcal{S}}
+\newcommand{\prox}{\operatorname{prox}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\ip}[2]{\left\langle #1,#2 \right\rangle}
+\newcommand{\st}{\operatorname{s.t.}}
+
+\title{Problem Formulations, Exact ADMM Derivations, and Online Penalty Pseudocode}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Shared ADMM Template}
+
+The experiments use exact two-block ADMM instances of the form
+\begin{equation}
+    \min_{x,z}\; f(x) + g(z)
+    \quad \text{s.t.} \quad
+    Ax + Bz = c .
+    \label{eq:generic-problem}
+\end{equation}
+For a penalty parameter $\rho>0$ and scaled dual variable $w=\lambda/\rho$,
+the scaled augmented Lagrangian is
+\begin{equation}
+    \mathcal{L}_{\rho}(x,z,w)
+    =
+    f(x)+g(z)
+    + \frac{\rho}{2}\norm{Ax+Bz-c+w}_2^2
+    - \frac{\rho}{2}\norm{w}_2^2 .
+\end{equation}
+With fixed $\rho$, scaled ADMM performs
+\begin{align}
+    x^{k+1}
+    &=
+    \argmin_x\;
+    f(x)
+    + \frac{\rho}{2}
+      \norm{Ax+Bz^k-c+w^k}_2^2, \\
+    z^{k+1}
+    &=
+    \argmin_z\;
+    g(z)
+    + \frac{\rho}{2}
+      \norm{Ax^{k+1}+Bz-c+w^k}_2^2, \\
+    w^{k+1}
+    &=
+    w^k + Ax^{k+1}+Bz^{k+1}-c .
+\end{align}
+The primal residual and a standard dual residual are
+\begin{equation}
+    r^{k+1}=Ax^{k+1}+Bz^{k+1}-c,
+    \qquad
+    s^{k+1}=\rho A^\top B(z^{k+1}-z^k).
+\end{equation}
+For variable-penalty ADMM in scaled form, changing from $\rho_k$ to
+$\rho_{k+1}$ requires preserving the unscaled dual variable:
+\begin{equation}
+    \lambda^{k+1}=\rho_k w^{k+1}
+    =
+    \rho_{k+1}\widetilde{w}^{k+1}
+    \quad \Longrightarrow \quad
+    \widetilde{w}^{k+1}
+    =
+    \frac{\rho_k}{\rho_{k+1}} w^{k+1}.
+    \label{eq:scaled-dual-rescale}
+\end{equation}
+This rescaling is part of the algorithm, not an implementation detail.
+
+\section{Online Penalty Controller}
+
+Let
+\begin{equation}
+    u_k=\log \rho_k,
+    \qquad
+    \rho_k=\exp(u_k),
+    \qquad
+    u_k \in [u_{\min},u_{\max}].
+\end{equation}
+The controller observes residuals after the $k$th ADMM step and updates
+$u_k$ by projected online gradient descent.  Define a base dual-change norm
+\begin{equation}
+    d^{k+1}=B(z^{k+1}-z^k),
+\end{equation}
+so that the scaled dual residual has magnitude proportional to
+$\rho_k\norm{d^{k+1}}$.  With a small smoothing constant $\epsilon>0$,
+define
+\begin{equation}
+    a_k
+    =
+    \log(\norm{r^{k+1}}+\epsilon)
+    -
+    \log(\norm{d^{k+1}}+\epsilon).
+\end{equation}
+The residual-balance loss is the one-dimensional convex loss
+\begin{equation}
+    \ell_k(u)
+    =
+    \frac{1}{2}(u-a_k)^2
+    =
+    \frac{1}{2}
+    \left(
+        \log(\rho\norm{d^{k+1}}+\epsilon)
+        -
+        \log(\norm{r^{k+1}}+\epsilon)
+    \right)^2.
+    \label{eq:online-loss}
+\end{equation}
+The clipped projected OGD step is
+\begin{equation}
+    g_k = u_k-a_k,
+    \qquad
+    \widetilde{g}_k
+    =
+    \operatorname{clip}(g_k;G),
+    \qquad
+    u_{k+1}
+    =
+    \Pi_{[u_{\min},u_{\max}]}
+    \left(u_k-\eta_k\widetilde{g}_k\right),
+    \label{eq:ogd-update}
+\end{equation}
+where a typical diminishing step size is
+\begin{equation}
+    \eta_k = \frac{\eta_0}{\sqrt{k+1}}.
+\end{equation}
+The experiments also allow epochwise updates and burn-in/freeze schedules.
+These variants keep the same loss but only apply \eqref{eq:ogd-update} on
+selected iterations.
+
+\section{Closed-Form Argmin Principles}
+
+All ADMM subproblems used in the experiments are solved exactly, up to
+floating-point linear algebra.  No linearized ADMM step is used.  The closed
+forms come from three elementary cases.
+
+\paragraph{Strictly convex quadratic subproblem.}
+If
+\begin{equation}
+    x^\star
+    =
+    \argmin_x
+    \frac{1}{2}\norm{Ax-b}_2^2
+    +
+    \frac{\rho}{2}\norm{x-v}_2^2,
+\end{equation}
+then the objective is differentiable and strongly convex.  Setting its
+gradient to zero gives
+\begin{equation}
+    A^\top(Ax^\star-b)+\rho(x^\star-v)=0,
+\end{equation}
+so
+\begin{equation}
+    (A^\top A+\rho I)x^\star=A^\top b+\rho v,
+    \qquad
+    x^\star=(A^\top A+\rho I)^{-1}(A^\top b+\rho v).
+    \label{eq:generic-quadratic-argmin}
+\end{equation}
+In code, this is implemented by solving the linear system rather than
+explicitly forming the inverse.
+
+\paragraph{Least-squares plus linear operator quadratic.}
+If
+\begin{equation}
+    x^\star
+    =
+    \argmin_x
+    \frac{1}{2}\norm{x-b}_2^2
+    +
+    \frac{\rho}{2}\norm{Dx-v}_2^2,
+\end{equation}
+then
+\begin{equation}
+    x^\star-b+\rho D^\top(Dx^\star-v)=0,
+\end{equation}
+and therefore
+\begin{equation}
+    (I+\rho D^\top D)x^\star=b+\rho D^\top v.
+    \label{eq:generic-operator-quadratic-argmin}
+\end{equation}
+
+\paragraph{\(\ell_1\) proximal subproblem.}
+For
+\begin{equation}
+    z^\star
+    =
+    \argmin_z
+    \lambda\norm{z}_1+\frac{\rho}{2}\norm{z-v}_2^2,
+\end{equation}
+the problem separates coordinatewise:
+\begin{equation}
+    z_i^\star
+    =
+    \argmin_t
+    \lambda |t|+\frac{\rho}{2}(t-v_i)^2 .
+\end{equation}
+The subgradient optimality condition is
+\begin{equation}
+    0\in \lambda\,\partial |z_i^\star|+\rho(z_i^\star-v_i),
+\end{equation}
+which yields the soft-thresholding operator
+\begin{equation}
+    z_i^\star
+    =
+    \shrink(v_i,\lambda/\rho)
+    =
+    \operatorname{sign}(v_i)\max\{|v_i|-\lambda/\rho,0\}.
+    \label{eq:generic-soft-threshold-argmin}
+\end{equation}
+If the quadratic coefficient is $N\rho/2$ instead of $\rho/2$, the threshold
+becomes $\lambda/(N\rho)$.
+
+\begin{algorithm}[t]
+\caption{Exact scaled ADMM with online penalty control}
+\label{alg:generic-online-admm}
+\begin{algorithmic}[1]
+\Require $x^0,z^0,w^0$, initial $\rho_0>0$, controller parameters
+\For{$k=0,1,\ldots,K-1$}
+    \State $x^{k+1} \gets \argmin_x\; f(x)+\frac{\rho_k}{2}
+    \norm{Ax+Bz^k-c+w^k}^2$
+    \State $z^{k+1} \gets \argmin_z\; g(z)+\frac{\rho_k}{2}
+    \norm{Ax^{k+1}+Bz-c+w^k}^2$
+    \State $w^{k+1} \gets w^k + Ax^{k+1}+Bz^{k+1}-c$
+    \State Compute $r^{k+1}=Ax^{k+1}+Bz^{k+1}-c$
+    \State Compute $d^{k+1}=B(z^{k+1}-z^k)$
+    \State Update $u_{k+1}$ using \eqref{eq:ogd-update};
+           set $\rho_{k+1}=\exp(u_{k+1})$
+    \If{$\rho_{k+1}\neq\rho_k$}
+        \State $w^{k+1}\gets(\rho_k/\rho_{k+1})w^{k+1}$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Graphical Lasso}
+
+\subsection{Formulation}
+
+Given a sample covariance matrix $S\in\R^{p\times p}$, graphical lasso
+estimates a sparse precision matrix $\Theta\succ 0$ by solving
+\begin{equation}
+    \min_{\Theta\succ 0}\;
+    -\log\det \Theta
+    + \tr(S\Theta)
+    + \lambda \norm{\Theta}_{1,\mathrm{off}},
+    \label{eq:glasso}
+\end{equation}
+where $\norm{\Theta}_{1,\mathrm{off}}=\sum_{i\neq j}|\Theta_{ij}|$.
+Introduce a splitting variable $Z$ and the constraint $\Theta-Z=0$:
+\begin{equation}
+    \min_{\Theta\succ0,Z}\;
+    -\log\det\Theta+\tr(S\Theta)
+    +\lambda\norm{Z}_{1,\mathrm{off}}
+    \quad \text{s.t.}\quad \Theta-Z=0 .
+\end{equation}
+
+\subsection{ADMM Updates}
+
+Using scaled dual $W$, the $\Theta$ update is
+\begin{equation}
+    \Theta^{k+1}
+    =
+    \argmin_{\Theta\succ0}
+    -\log\det\Theta+\tr(S\Theta)
+    +\frac{\rho_k}{2}
+    \norm{\Theta-Z^k+W^k}_F^2 .
+\end{equation}
+The first-order condition is
+\begin{equation}
+    -(\Theta^{k+1})^{-1}+S+\rho_k(\Theta^{k+1}-Z^k+W^k)=0.
+\end{equation}
+Equivalently,
+\begin{equation}
+    \rho_k\Theta^{k+1}-(\Theta^{k+1})^{-1}
+    =
+    \rho_k(Z^k-W^k)-S.
+    \label{eq:glasso-matrix-equation}
+\end{equation}
+Let
+\begin{equation}
+    M_k=\rho_k(Z^k-W^k)-S
+    =
+    Q\diag(\gamma_1,\ldots,\gamma_p)Q^\top .
+\end{equation}
+Since the left-hand side of \eqref{eq:glasso-matrix-equation} is a matrix
+function of $\Theta^{k+1}$, the optimizer has the same eigenvectors as
+$M_k$.  Thus
+\begin{equation}
+    \Theta^{k+1}=Q\diag(\theta_1,\ldots,\theta_p)Q^\top,
+\end{equation}
+and each eigenvalue solves
+\begin{equation}
+    \rho_k\theta_i-\frac{1}{\theta_i}=\gamma_i
+    \quad \Longleftrightarrow \quad
+    \rho_k\theta_i^2-\gamma_i\theta_i-1=0.
+\end{equation}
+The positive root is required by $\Theta\succ0$, giving the closed form
+\begin{equation}
+    \Theta^{k+1}
+    =
+    Q\diag(\theta_1,\ldots,\theta_p)Q^\top,
+    \qquad
+    \theta_i
+    =
+    \frac{\gamma_i+\sqrt{\gamma_i^2+4\rho_k}}{2\rho_k}.
+    \label{eq:glasso-theta-update}
+\end{equation}
+The $Z$ update is entrywise soft-thresholding off the diagonal:
+\begin{equation}
+    V^{k+1}=\Theta^{k+1}+W^k,
+\end{equation}
+because
+\begin{equation}
+    Z^{k+1}
+    =
+    \argmin_Z
+    \lambda\norm{Z}_{1,\mathrm{off}}
+    +
+    \frac{\rho_k}{2}\norm{Z-V^{k+1}}_F^2
+\end{equation}
+separates over entries.  Applying \eqref{eq:generic-soft-threshold-argmin}
+to off-diagonal entries and leaving the unpenalized diagonal unchanged gives
+\begin{equation}
+    Z^{k+1}_{ij}
+    =
+    \begin{cases}
+        \shrink(V^{k+1}_{ij},\lambda/\rho_k), & i\neq j,\\
+        V^{k+1}_{ii}, & i=j,
+    \end{cases}
+    \qquad
+    \shrink(t,\tau)=\operatorname{sign}(t)\max\{|t|-\tau,0\}.
+\end{equation}
+Finally,
+\begin{equation}
+    W^{k+1}=W^k+\Theta^{k+1}-Z^{k+1}.
+\end{equation}
+The residual norms used in the experiments are
+\begin{equation}
+    \norm{r^{k+1}}_F=\norm{\Theta^{k+1}-Z^{k+1}}_F,
+    \qquad
+    \norm{s^{k+1}}_F
+    =
+    \rho_k\norm{Z^{k+1}-Z^k}_F.
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{Graphical lasso ADMM with online $\rho$}
+\label{alg:glasso}
+\begin{algorithmic}[1]
+\Require $S,\lambda,\Theta^0,Z^0,W^0,\rho_0$
+\For{$k=0,1,\ldots,K-1$}
+    \State Eigendecompose $M_k=\rho_k(Z^k-W^k)-S=Q\diag(\gamma_i)Q^\top$
+    \State $\theta_i\gets(\gamma_i+\sqrt{\gamma_i^2+4\rho_k})/(2\rho_k)$
+    \State $\Theta^{k+1}\gets Q\diag(\theta_i)Q^\top$
+    \State $V^{k+1}\gets \Theta^{k+1}+W^k$
+    \State $Z^{k+1}_{ij}\gets\shrink(V^{k+1}_{ij},\lambda/\rho_k)$ for $i\neq j$;
+           $Z^{k+1}_{ii}\gets V^{k+1}_{ii}$
+    \State $W^{k+1}\gets W^k+\Theta^{k+1}-Z^{k+1}$
+    \State Update $\rho$ from $\norm{\Theta^{k+1}-Z^{k+1}}_F$ and
+           $\norm{Z^{k+1}-Z^k}_F$; rescale $W^{k+1}$ if needed
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Consensus Lasso}
+
+\subsection{Formulation}
+
+With $N$ workers, local design matrices $A_i$, responses $b_i$, and a shared
+global coefficient vector $z$, consensus Lasso is
+\begin{equation}
+    \min_{\{x_i\},z}\;
+    \sum_{i=1}^N \frac{1}{2}\norm{A_i x_i-b_i}_2^2
+    +\lambda\norm{z}_1
+    \quad \text{s.t.}\quad
+    x_i-z=0,\quad i=1,\ldots,N .
+    \label{eq:consensus-lasso}
+\end{equation}
+
+\subsection{ADMM Updates}
+
+Let $u_i$ be the scaled dual variable for $x_i-z=0$.  The $x_i$ updates
+decouple:
+\begin{equation}
+    x_i^{k+1}
+    =
+    \argmin_{x_i}
+    \frac{1}{2}\norm{A_i x_i-b_i}_2^2
+    +
+    \frac{\rho_k}{2}\norm{x_i-z^k+u_i^k}_2^2,
+\end{equation}
+so the first-order condition is
+\begin{equation}
+    A_i^\top(A_i x_i^{k+1}-b_i)
+    +
+    \rho_k(x_i^{k+1}-z^k+u_i^k)=0.
+\end{equation}
+Collecting terms gives the closed form
+\begin{equation}
+    x_i^{k+1}
+    =
+    (A_i^\top A_i+\rho_k I)^{-1}
+    \left(A_i^\top b_i+\rho_k(z^k-u_i^k)\right).
+    \label{eq:consensus-x-update}
+\end{equation}
+The $z$ update solves
+\begin{equation}
+    z^{k+1}
+    =
+    \argmin_z
+    \lambda\norm{z}_1
+    +
+    \frac{\rho_k}{2}\sum_{i=1}^N
+    \norm{x_i^{k+1}-z+u_i^k}_2^2,
+\end{equation}
+which can be reduced to the proximal form by defining
+\begin{equation}
+    \bar{v}^{k+1}
+    =
+    \frac{1}{N}\sum_{i=1}^N(x_i^{k+1}+u_i^k).
+\end{equation}
+Ignoring constants independent of $z$,
+\begin{equation}
+    z^{k+1}
+    =
+    \argmin_z
+    \lambda\norm{z}_1
+    +
+    \frac{N\rho_k}{2}\norm{z-\bar{v}^{k+1}}_2^2.
+\end{equation}
+Applying \eqref{eq:generic-soft-threshold-argmin} with quadratic coefficient
+$N\rho_k$ gives
+\begin{equation}
+    z^{k+1}
+    =
+    \shrink\left(
+        \frac{1}{N}\sum_{i=1}^N (x_i^{k+1}+u_i^k),
+        \frac{\lambda}{N\rho_k}
+    \right).
+    \label{eq:consensus-z-update}
+\end{equation}
+The scaled duals are updated by
+\begin{equation}
+    u_i^{k+1}=u_i^k+x_i^{k+1}-z^{k+1}.
+\end{equation}
+The residual norms are
+\begin{equation}
+    \norm{r^{k+1}}_2
+    =
+    \left(\sum_{i=1}^N\norm{x_i^{k+1}-z^{k+1}}_2^2\right)^{1/2},
+    \qquad
+    \norm{s^{k+1}}_2
+    =
+    \rho_k\sqrt{N}\norm{z^{k+1}-z^k}_2.
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{Consensus Lasso ADMM with shared online $\rho$}
+\label{alg:consensus-lasso}
+\begin{algorithmic}[1]
+\Require $\{A_i,b_i\}_{i=1}^N,\lambda,z^0,\{x_i^0,u_i^0\},\rho_0$
+\For{$k=0,1,\ldots,K-1$}
+    \For{$i=1,\ldots,N$}
+        \State $x_i^{k+1}\gets(A_i^\top A_i+\rho_k I)^{-1}
+        (A_i^\top b_i+\rho_k(z^k-u_i^k))$
+    \EndFor
+    \State $z^{k+1}\gets
+    \shrink\left(N^{-1}\sum_i(x_i^{k+1}+u_i^k),\lambda/(N\rho_k)\right)$
+    \For{$i=1,\ldots,N$}
+        \State $u_i^{k+1}\gets u_i^k+x_i^{k+1}-z^{k+1}$
+    \EndFor
+    \State Update $\rho$ from aggregate primal and dual residuals;
+           rescale all $u_i^{k+1}$ if needed
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{One-Dimensional Total-Variation Denoising}
+
+\subsection{Formulation}
+
+Given a noisy signal $b\in\R^n$, the anisotropic one-dimensional TV denoising
+problem is
+\begin{equation}
+    \min_x\;
+    \frac{1}{2}\norm{x-b}_2^2
+    +\lambda\norm{Dx}_1,
+    \label{eq:tv}
+\end{equation}
+where $D\in\R^{(n-1)\times n}$ is the first-difference operator:
+\begin{equation}
+    (Dx)_j=x_{j+1}-x_j,\qquad j=1,\ldots,n-1.
+\end{equation}
+Introduce $z=Dx$:
+\begin{equation}
+    \min_{x,z}\;
+    \frac{1}{2}\norm{x-b}_2^2+\lambda\norm{z}_1
+    \quad \text{s.t.}\quad
+    Dx-z=0.
+\end{equation}
+
+\subsection{ADMM Updates}
+
+With scaled dual $u$, the $x$ update is
+\begin{equation}
+    x^{k+1}
+    =
+    \argmin_x
+    \frac{1}{2}\norm{x-b}_2^2
+    +
+    \frac{\rho_k}{2}\norm{Dx-z^k+u^k}_2^2.
+\end{equation}
+The first-order optimality condition is
+\begin{equation}
+    x^{k+1}-b
+    +
+    \rho_k D^\top(Dx^{k+1}-z^k+u^k)=0.
+\end{equation}
+Thus the normal equations are
+\begin{equation}
+    (I+\rho_k D^\top D)x^{k+1}
+    =
+    b+\rho_k D^\top(z^k-u^k).
+    \label{eq:tv-x-update}
+\end{equation}
+For one-dimensional TV, $I+\rho_kD^\top D$ is tridiagonal.  The $z$ update
+solves
+\begin{equation}
+    z^{k+1}
+    =
+    \argmin_z
+    \lambda\norm{z}_1
+    +
+    \frac{\rho_k}{2}\norm{z-(Dx^{k+1}+u^k)}_2^2,
+\end{equation}
+so the closed form is again soft-thresholding:
+\begin{equation}
+    z^{k+1}
+    =
+    \shrink(Dx^{k+1}+u^k,\lambda/\rho_k),
+    \label{eq:tv-z-update}
+\end{equation}
+and the scaled dual update is
+\begin{equation}
+    u^{k+1}=u^k+Dx^{k+1}-z^{k+1}.
+\end{equation}
+The residual norms are
+\begin{equation}
+    \norm{r^{k+1}}_2=\norm{Dx^{k+1}-z^{k+1}}_2,
+    \qquad
+    \norm{s^{k+1}}_2
+    =
+    \rho_k\norm{D^\top(z^{k+1}-z^k)}_2.
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{One-dimensional TV denoising ADMM with online $\rho$}
+\label{alg:tv}
+\begin{algorithmic}[1]
+\Require $b,\lambda,D,x^0,z^0,u^0,\rho_0$
+\For{$k=0,1,\ldots,K-1$}
+    \State Solve $(I+\rho_kD^\top D)x^{k+1}=b+\rho_kD^\top(z^k-u^k)$
+    \State $z^{k+1}\gets\shrink(Dx^{k+1}+u^k,\lambda/\rho_k)$
+    \State $u^{k+1}\gets u^k+Dx^{k+1}-z^{k+1}$
+    \State Update $\rho$ from $\norm{Dx^{k+1}-z^{k+1}}_2$ and
+           $\norm{D^\top(z^{k+1}-z^k)}_2$; rescale $u^{k+1}$ if needed
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Benchmark Controllers and Ablations}
+
+The benchmark suite compares the proposed online OGD penalty controller
+against fixed penalties, residual-balancing heuristics, a Xu--Figueiredo--
+Goldstein spectral AADMM prior-art baseline, internal online-controller
+ablations, and implementation ablations.  All methods use the
+same exact ADMM subproblem solves from the previous sections.  The only
+difference is how $\rho_k$ is selected after each ADMM iteration.
+
+We separate methods into three categories.  The external baselines are fixed
+penalties, oracle fixed penalties, residual-balancing rules, and spectral
+AADMM.  The internal ablations keep the proposed representation
+$u=\log\rho$ and the same residual-induced online gradient, but modify the
+controller schedule or learning-rate rule.  The implementation ablation removes
+the scaled-dual rescaling step to isolate a failure mode.
+
+\subsection{Fixed Penalty Grid and Oracle Fixed Penalty}
+
+The fixed-penalty baseline holds $\rho_k=\rho_0$ for all iterations.  The
+expanded benchmark uses the grid
+\begin{equation}
+    \mathcal{G}
+    =
+    \{0.01,\;0.03,\;0.1,\;0.3,\;1,\;3,\;10,\;30,\;100\}.
+\end{equation}
+For each problem instance and random seed, we also report an oracle fixed-rho
+baseline:
+\begin{equation}
+    \rho_{\mathrm{oracle}}
+    \in
+    \argmin_{\rho\in\mathcal{G}}
+    T_{\rho},
+\end{equation}
+where $T_{\rho}$ is the number of ADMM iterations required to satisfy the
+stopping criterion.  If several fixed penalties converge in the same number of
+iterations, the tie is broken by the final residual magnitude.  This is an
+in-hindsight baseline: it is not a deployable method, but it measures how close
+an adaptive method comes to the best fixed penalty chosen after seeing the
+experiment.
+
+\subsection{Raw Residual Balancing}
+
+The raw residual-balancing baseline compares primal and dual residual norms:
+\begin{equation}
+    R_k=\norm{r^{k+1}},
+    \qquad
+    S_k=\norm{s^{k+1}}=\rho_k\norm{d^{k+1}},
+\end{equation}
+where $d^{k+1}=B(z^{k+1}-z^k)$ is the base dual-change vector.  Given
+$\mu>1$ and $\tau>1$, it updates
+\begin{equation}
+    \rho_{k+1}
+    =
+    \begin{cases}
+        \tau\rho_k, & R_k>\mu S_k,\\
+        \rho_k/\tau, & S_k>\mu R_k,\\
+        \rho_k, & \text{otherwise}.
+    \end{cases}
+    \label{eq:raw-residual-balance}
+\end{equation}
+The experiments use $\mu=10$, $\tau=2$, and clip
+$\rho_{k+1}\in[10^{-3},10^3]$.  Whenever \eqref{eq:raw-residual-balance}
+changes $\rho$, the scaled dual variable is rescaled according to
+\eqref{eq:scaled-dual-rescale}.
+
+\subsection{Normalized Residual Balancing}
+
+Raw residual balancing can be misleading when primal and dual residuals have
+different natural scales.  The normalized variant divides by ADMM-style
+stopping thresholds:
+\begin{align}
+    \epsilon_{\mathrm{pri}}^k
+    &=
+    \sqrt{m}\,\epsilon_{\mathrm{abs}}
+    +
+    \epsilon_{\mathrm{rel}} R_{\mathrm{ref}}^k,\\
+    \epsilon_{\mathrm{dual}}^k
+    &=
+    \sqrt{n}\,\epsilon_{\mathrm{abs}}
+    +
+    \epsilon_{\mathrm{rel}} S_{\mathrm{ref}}^k,
+\end{align}
+where $m$ is the dimension of the primal residual, $n$ is the dimension of the
+dual residual, and $R_{\mathrm{ref}}^k,S_{\mathrm{ref}}^k$ are problem-specific
+reference magnitudes.  In the implementation, $\epsilon_{\mathrm{abs}}$ and
+$\epsilon_{\mathrm{rel}}$ are both set equal to the solver tolerance.  The
+balanced quantities are
+\begin{equation}
+    \widehat{R}_k=\frac{\norm{r^{k+1}}}{\epsilon_{\mathrm{pri}}^k},
+    \qquad
+    \widehat{S}_k=\frac{\norm{s^{k+1}}}{\epsilon_{\mathrm{dual}}^k}.
+\end{equation}
+The same multiplicative rule as \eqref{eq:raw-residual-balance} is then applied
+to $\widehat{R}_k$ and $\widehat{S}_k$.
+
+\subsection{Relative Residual Balancing}
+
+The relative residual-balancing baseline follows the same scale-correction
+idea, but normalizes directly by iterate-dependent reference magnitudes:
+\begin{equation}
+    R_k^{\mathrm{rel}}
+    =
+    \frac{\norm{r^{k+1}}}{R_{\mathrm{ref}}^k},
+    \qquad
+    S_k^{\mathrm{rel}}
+    =
+    \frac{\norm{s^{k+1}}}{S_{\mathrm{ref}}^k}.
+\end{equation}
+For graphical lasso, the primal reference is
+$\max\{\norm{\Theta^{k+1}}_F,\norm{Z^{k+1}}_F,1\}$ and the dual reference is
+$\max\{\norm{\rho_k W^{k+1}}_F,\norm{S}_F,1\}$.  For consensus Lasso, the
+primal reference compares the stacked local variables with the replicated
+consensus variable, and the dual reference uses the unscaled dual magnitude.
+For TV denoising, the primal reference compares $Dx$ and $z$, and the dual
+reference uses the unscaled dual and signal magnitudes.  The penalty update is
+\begin{equation}
+    \rho_{k+1}
+    =
+    \begin{cases}
+        \tau\rho_k, & R_k^{\mathrm{rel}}>\mu S_k^{\mathrm{rel}},\\
+        \rho_k/\tau, & S_k^{\mathrm{rel}}>\mu R_k^{\mathrm{rel}},\\
+        \rho_k, & \text{otherwise}.
+    \end{cases}
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{Residual-balancing penalty update}
+\label{alg:residual-balancing}
+\begin{algorithmic}[1]
+\Require $\rho_k$, primal residual norm $R_k$, base dual-change norm $D_k$,
+         mode $\in\{\mathrm{raw},\mathrm{normalized},\mathrm{relative}\}$
+\State $S_k\gets \rho_k D_k$
+\If{mode is raw}
+    \State $a_k\gets R_k$, $b_k\gets S_k$
+\ElsIf{mode is normalized}
+    \State $a_k\gets R_k/\epsilon_{\mathrm{pri}}^k$,
+           $b_k\gets S_k/\epsilon_{\mathrm{dual}}^k$
+\Else
+    \State $a_k\gets R_k/R_{\mathrm{ref}}^k$,
+           $b_k\gets S_k/S_{\mathrm{ref}}^k$
+\EndIf
+\If{$a_k>\mu b_k$}
+    \State $\rho_{k+1}\gets \min\{\rho_{\max},\tau\rho_k\}$
+\ElsIf{$b_k>\mu a_k$}
+    \State $\rho_{k+1}\gets \max\{\rho_{\min},\rho_k/\tau\}$
+\Else
+    \State $\rho_{k+1}\gets \rho_k$
+\EndIf
+\State If $\rho_{k+1}\neq\rho_k$, rescale the scaled dual variable by
+       $\rho_k/\rho_{k+1}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Spectral AADMM Baseline}
+
+The literature-faithful spectral baseline follows the adaptive ADMM idea of
+Xu, Figueiredo, and Goldstein.  It uses the dual Douglas--Rachford
+interpretation of ADMM to estimate two spectral stepsizes from changes in
+unscaled dual variables and corresponding dual subgradient values.  In the
+notation of the generic constraint $Ax+Bz=c$, define the unscaled dual
+$\lambda^k$ and the intermediate dual after the $x$ update:
+\begin{equation}
+    \widehat{\lambda}^{k+1}
+    =
+    \lambda^k+\rho_k(Ax^{k+1}+Bz^k-c),
+    \qquad
+    \lambda^{k+1}
+    =
+    \lambda^k+\rho_k(Ax^{k+1}+Bz^{k+1}-c).
+\end{equation}
+Given a previous accepted snapshot $k_0$, set
+\begin{align}
+    \Delta\widehat{\lambda}
+    &=\widehat{\lambda}^{k+1}-\widehat{\lambda}^{k_0+1},
+    &
+    \Delta H
+    &=A(x^{k+1}-x^{k_0+1}),\\
+    \Delta\lambda
+    &=\lambda^{k+1}-\lambda^{k_0+1},
+    &
+    \Delta G
+    &=B(z^{k+1}-z^{k_0+1}).
+\end{align}
+The spectral stepsize estimates are
+\begin{align}
+    \widehat{\alpha}_{\mathrm{SD}}
+    &=
+    \frac{\ip{\Delta\widehat{\lambda}}{\Delta\widehat{\lambda}}}
+         {\ip{\Delta H}{\Delta\widehat{\lambda}}},
+    &
+    \widehat{\alpha}_{\mathrm{MG}}
+    &=
+    \frac{\ip{\Delta H}{\Delta\widehat{\lambda}}}
+         {\ip{\Delta H}{\Delta H}},\\
+    \widehat{\beta}_{\mathrm{SD}}
+    &=
+    \frac{\ip{\Delta\lambda}{\Delta\lambda}}
+         {\ip{\Delta G}{\Delta\lambda}},
+    &
+    \widehat{\beta}_{\mathrm{MG}}
+    &=
+    \frac{\ip{\Delta G}{\Delta\lambda}}
+         {\ip{\Delta G}{\Delta G}}.
+\end{align}
+Following the hybrid spectral rule, the implementation uses the MG estimate
+when $2\widehat{\alpha}_{\mathrm{MG}}>\widehat{\alpha}_{\mathrm{SD}}$ and
+otherwise uses
+$\widehat{\alpha}_{\mathrm{SD}}-\widehat{\alpha}_{\mathrm{MG}}/2$; the same
+rule is applied to $\widehat{\beta}$.  The correlation safeguards are
+\begin{equation}
+    \alpha_{\mathrm{cor}}
+    =
+    \frac{\ip{\Delta H}{\Delta\widehat{\lambda}}}
+         {\norm{\Delta H}\norm{\Delta\widehat{\lambda}}},
+    \qquad
+    \beta_{\mathrm{cor}}
+    =
+    \frac{\ip{\Delta G}{\Delta\lambda}}
+         {\norm{\Delta G}\norm{\Delta\lambda}}.
+\end{equation}
+With threshold $\epsilon_{\mathrm{cor}}=0.2$, the update is
+\begin{equation}
+    \rho_{k+1}
+    =
+    \begin{cases}
+        \sqrt{\widehat{\alpha}\widehat{\beta}},
+        & \alpha_{\mathrm{cor}}>\epsilon_{\mathrm{cor}},
+          \ \beta_{\mathrm{cor}}>\epsilon_{\mathrm{cor}},\\
+        \widehat{\alpha},
+        & \alpha_{\mathrm{cor}}>\epsilon_{\mathrm{cor}},
+          \ \beta_{\mathrm{cor}}\le\epsilon_{\mathrm{cor}},\\
+        \widehat{\beta},
+        & \alpha_{\mathrm{cor}}\le\epsilon_{\mathrm{cor}},
+          \ \beta_{\mathrm{cor}}>\epsilon_{\mathrm{cor}},\\
+        \rho_k, & \text{otherwise}.
+    \end{cases}
+\end{equation}
+This baseline is reported as \texttt{spectral\_aadmm\_xu2017}.
+
+\subsection{Online-Controller Ablations}
+
+The proposed method is the online OGD update in \eqref{eq:ogd-update}.  The
+benchmark suite includes the following internal variants:
+\begin{itemize}
+    \item \textbf{online\_ogd}: update $u=\log\rho$ every ADMM iteration.
+    \item \textbf{online\_ogd\_epoch5}: update $u$ every 5 ADMM iterations.
+    \item \textbf{online\_ogd\_epoch10}: update $u$ every 10 ADMM iterations.
+    \item \textbf{online\_ogd\_freeze50}: update $u$ for the first 50 ADMM
+          iterations, then keep $\rho$ fixed.
+    \item \textbf{bb\_online\_penalty\_simplified}: keep the same online
+          residual-balance loss and gradient as \textbf{online\_ogd}, but
+          replace the diminishing OGD stepsize with a scalar BB-style secant
+          estimate.
+\end{itemize}
+The epochwise and freeze variants test whether the useful part of adaptation
+is early automatic tuning rather than continual perturbation of the ADMM
+operator.  The simplified BB/OCO variant is not an external adaptive-ADMM
+baseline; it is a stepsize ablation of the proposed online controller.
+
+\paragraph{Simplified BB/OCO stepsize.}
+
+The simplified BB/OCO ablation uses the same log-residual gradient
+as the proposed method,
+\begin{equation}
+    g_k
+    =
+    u_k+\log(\norm{d^{k+1}}+\epsilon)
+    -
+    \log(\norm{r^{k+1}}+\epsilon),
+\end{equation}
+but chooses the step size from consecutive gradient observations:
+\begin{equation}
+    \eta_k^{\mathrm{BB}}
+    =
+    \operatorname{clip}
+    \left(
+        \left|
+        \frac{u_k-u_{k-1}}{g_k-g_{k-1}}
+        \right|,
+        \eta_{\min},
+        \eta_{\max}
+    \right).
+    \label{eq:bb-stepsize}
+\end{equation}
+When $g_k-g_{k-1}$ is too small or no previous gradient exists, the baseline
+uses the fallback $\eta_0/\sqrt{k+1}$.  The update is
+\begin{equation}
+    u_{k+1}
+    =
+    \Pi_{[u_{\min},u_{\max}]}
+    \left(u_k-\eta_k^{\mathrm{BB}}\operatorname{clip}(g_k;G)\right).
+\end{equation}
+This method is not the spectral AADMM method above.  It is useful only as a
+one-dimensional online-control ablation because it replaces the diminishing OGD
+stepsize by a BB secant ratio on the online loss.
+
+\begin{algorithm}[t]
+\caption{Simplified BB/OCO log-penalty update}
+\label{alg:bb-online}
+\begin{algorithmic}[1]
+\Require $u_k$, residuals $r^{k+1}$ and $d^{k+1}$, previous pair
+         $(u_{k-1},g_{k-1})$ if available
+\State $g_k\gets u_k+\log(\norm{d^{k+1}}+\epsilon)
+       -\log(\norm{r^{k+1}}+\epsilon)$
+\State $\widetilde{g}_k\gets\operatorname{clip}(g_k;G)$
+\If{previous pair is available and $|g_k-g_{k-1}|>\epsilon$}
+    \State $\eta_k\gets
+    \operatorname{clip}(|(u_k-u_{k-1})/(g_k-g_{k-1})|,
+    \eta_{\min},\eta_{\max})$
+\Else
+    \State $\eta_k\gets \eta_0/\sqrt{k+1}$
+\EndIf
+\State $u_{k+1}\gets
+\Pi_{[u_{\min},u_{\max}]}\left(u_k-\eta_k\widetilde{g}_k\right)$
+\State $\rho_{k+1}\gets \exp(u_{k+1})$
+\State Rescale the scaled dual variable if $\rho_{k+1}\neq\rho_k$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{No-Dual-Rescale Ablation}
+
+The no-dual-rescale ablation intentionally changes $\rho$ while leaving the
+scaled dual variable unchanged:
+\begin{equation}
+    \rho_{k+1}\neq\rho_k,
+    \qquad
+    w^{k+1}_{\mathrm{ablation}}=w^{k+1}.
+\end{equation}
+This violates \eqref{eq:scaled-dual-rescale}, since the unscaled dual changes
+from $\lambda^{k+1}=\rho_k w^{k+1}$ to
+$\widetilde{\lambda}^{k+1}=\rho_{k+1}w^{k+1}$ without an ADMM dual update.
+The purpose of this ablation is to demonstrate that instability after a
+penalty change can come from an incorrect scaled-form implementation rather
+than from the online controller itself.
+
+\section{Expanded Benchmark Protocol}
+
+For each problem and seed, the benchmark suite runs the fixed-rho grid, selects
+the oracle fixed-rho method in hindsight, and then runs every adaptive
+controller from a common initial value $\rho_0=1$.  Each run records the
+objective, primal residual, dual residual, current $\rho$, next $\rho$,
+controller loss, controller decision, stopping status, and wall-clock time.
+The default suite uses three seeds and a maximum of 150 ADMM iterations.
+
+\begin{algorithm}[t]
+\caption{Expanded benchmark suite}
+\label{alg:benchmark-suite}
+\begin{algorithmic}[1]
+\Require problem set $\mathcal{P}$, seeds $\mathcal{S}$, fixed grid
+         $\mathcal{G}$, adaptive controllers $\mathcal{C}$
+\For{problem $p\in\mathcal{P}$}
+    \For{seed $s\in\mathcal{S}$}
+        \State Generate the synthetic problem instance using seed $s$
+        \For{$\rho\in\mathcal{G}$}
+            \State Run exact ADMM with fixed $\rho$
+            \State Save history CSV and summary metrics
+        \EndFor
+        \State Select \texttt{oracle\_fixed\_grid} as the fixed-$\rho$ run
+               with smallest iteration count, breaking ties by final residual
+        \For{controller $c\in\mathcal{C}$}
+            \State Run exact ADMM with controller $c$ and initial $\rho_0=1$
+            \State Save history CSV and summary metrics
+        \EndFor
+    \EndFor
+\EndFor
+\State Write \texttt{benchmark\_summary.csv}
+\State Generate aggregate plots and seed-0 trajectory plots
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Benchmark Metrics}
+
+The primary metric is the number of iterations required to reach
+\begin{equation}
+    \max\{\norm{r^{k+1}},\norm{s^{k+1}}\}<10^{-4}.
+\end{equation}
+Runs that do not satisfy this criterion within the iteration budget are
+reported at the budget.  The suite also reports final primal residual, final
+dual residual, final objective, final $\rho$, number of penalty changes,
+wall-clock time, and problem-specific recovery metrics:
+\begin{itemize}
+    \item graphical lasso: precision-matrix relative error and support F1;
+    \item consensus Lasso: coefficient relative error and support F1;
+    \item TV denoising: signal relative error.
+\end{itemize}
+
+\subsection{Generated Benchmark Artifacts}
+
+The implementation writes the numerical results to
+\begin{equation}
+    \texttt{results/benchmarks/benchmark\_summary.csv}.
+\end{equation}
+It also writes one per-iteration history CSV for each
+problem-method-seed triple.  The visualization script creates aggregate bar
+charts and seed-0 trajectories for objective values, primal residuals, dual
+residuals, and penalty values.  These figures are saved in
+\begin{equation}
+    \texttt{results/benchmarks/visualizations/}.
+\end{equation}
+
+\subsection{Observed Results}
+
+Table~\ref{tab:benchmark-iterations} summarizes the main iteration-count
+patterns from the three-seed benchmark run.  The table is not meant to replace
+the full CSV; it highlights the methods most relevant for the paper narrative.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lll}
+\toprule
+Problem & Method & Average iterations \\
+\midrule
+Graphical lasso & Simplified BB/OCO ablation & 29.0 \\
+Graphical lasso & Spectral AADMM & 33.0 \\
+Graphical lasso & Online OGD & 34.7 \\
+Graphical lasso & Oracle fixed grid & 36.7 \\
+Graphical lasso & No dual rescale ablation & 150.0 \\
+\midrule
+Consensus Lasso & Spectral AADMM & 24.3 \\
+Consensus Lasso & Online OGD & 24.7 \\
+Consensus Lasso & Oracle fixed grid & 27.0 \\
+Consensus Lasso & Fixed $\rho=1$ & 27.0 \\
+Consensus Lasso & No dual rescale ablation & 149.0 \\
+\midrule
+TV denoising & Oracle fixed grid & 63.7 \\
+TV denoising & Simplified BB/OCO ablation & 69.3 \\
+TV denoising & Online OGD & 76.3 \\
+TV denoising & Relative residual balancing & 76.3 \\
+TV denoising & Spectral AADMM & 131.7 \\
+TV denoising & No dual rescale ablation & 150.0 \\
+\bottomrule
+\end{tabular}
+\caption{Average iteration counts from the expanded benchmark suite.  Each
+entry averages over three random seeds with a 150-iteration budget.}
+\label{tab:benchmark-iterations}
+\end{table}
+
+The main qualitative conclusions are as follows.  First, online OGD is
+competitive with the oracle fixed grid on graphical lasso and consensus Lasso,
+without using the hindsight grid search.  Second, the literature-faithful
+spectral AADMM baseline is strong on graphical lasso and consensus Lasso, which
+confirms that spectral adaptive ADMM is an important prior baseline rather than
+a strawman.  Third, TV denoising favors a larger penalty near $\rho=3$; online
+OGD moves toward that regime and substantially improves over raw residual
+balancing and the fixed $\rho=1$ baseline, while spectral AADMM is slower in
+this TV implementation.  Fourth, relative residual balancing is a strong TV
+baseline because it corrects residual scaling.  Fifth, the no-dual-rescale
+ablation fails or nearly fails across the benchmarks, providing direct
+experimental evidence for the scaled-dual rescaling rule
+\eqref{eq:scaled-dual-rescale}.
+
+\section{Experiment Mapping}
+
+Table~\ref{tab:mapping} summarizes the link between the derivations and the
+experiment implementation.
+\begin{table}[h]
+\centering
+\begin{tabular}{llll}
+\toprule
+Problem & Primal residual & Base dual-change norm & Main exact solve \\
+\midrule
+Graphical lasso
+& $\norm{\Theta-Z}_F$
+& $\norm{Z^{k+1}-Z^k}_F$
+& eigendecomposition \\
+Consensus Lasso
+& $\left(\sum_i\norm{x_i-z}^2\right)^{1/2}$
+& $\sqrt{N}\norm{z^{k+1}-z^k}$
+& local linear systems \\
+TV denoising
+& $\norm{Dx-z}$
+& $\norm{D^\top(z^{k+1}-z^k)}$
+& tridiagonal linear system \\
+\bottomrule
+\end{tabular}
+\caption{Residual quantities used by the online penalty controller.}
+\label{tab:mapping}
+\end{table}
+
+\end{document}

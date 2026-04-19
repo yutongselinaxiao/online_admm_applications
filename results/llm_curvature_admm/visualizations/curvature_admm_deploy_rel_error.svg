@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="560" viewBox="0 0 1360 560" role="img" aria-label="Curvature-Aware ADMM Deploy Relative Error">
+<title>Curvature-Aware ADMM Deploy Relative Error</title>
+<rect width="1360" height="560" fill="#ffffff"/>
+<text x="82" y="28" font-size="20" font-family="Arial" font-weight="700">Curvature-Aware ADMM Deploy Relative Error</text>
+<text x="18" y="258.0" transform="rotate(-90 18 258.0)" font-size="12" font-family="Arial">deploy relative error</text>
+<line x1="82" x2="1336" y1="460.00" y2="460.00" stroke="#e5e7eb"/>
+<text x="74" y="464.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0</text>
+<line x1="82" x2="1336" y1="359.00" y2="359.00" stroke="#e5e7eb"/>
+<text x="74" y="363.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.076</text>
+<line x1="82" x2="1336" y1="258.00" y2="258.00" stroke="#e5e7eb"/>
+<text x="74" y="262.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.15</text>
+<line x1="82" x2="1336" y1="157.00" y2="157.00" stroke="#e5e7eb"/>
+<text x="74" y="161.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.23</text>
+<line x1="82" x2="1336" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="74" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.31</text>
+<text x="709.00" y="506" text-anchor="middle" font-size="12" font-family="Arial">tiny llm ptq</text>
+<rect x="90.00" y="121.80" width="86.43" height="338.20" fill="#9c755f"><title>tiny_llm_ptq / admm_awq_like_fixed10: 0.2561</title></rect>
+<rect x="178.43" y="132.27" width="86.43" height="327.73" fill="#8c6d31"><title>tiny_llm_ptq / admm_awq_like_online_aggressive: 0.2482</title></rect>
+<rect x="266.86" y="141.36" width="86.43" height="318.64" fill="#d37295"><title>tiny_llm_ptq / admm_gptq_like_fixed10: 0.2413</title></rect>
+<rect x="355.29" y="177.13" width="86.43" height="282.87" fill="#6f63b6"><title>tiny_llm_ptq / admm_gptq_like_online_aggressive: 0.2142</title></rect>
+<rect x="443.71" y="148.62" width="86.43" height="311.38" fill="#76b7b2"><title>tiny_llm_ptq / admm_hessian_diag_fixed10: 0.2358</title></rect>
+<rect x="532.14" y="146.98" width="86.43" height="313.02" fill="#2f8f6b"><title>tiny_llm_ptq / admm_hessian_diag_online_aggressive: 0.2371</title></rect>
+<rect x="620.57" y="92.73" width="86.43" height="367.27" fill="#b07aa1"><title>tiny_llm_ptq / admm_uniform_fixed10: 0.2782</title></rect>
+<rect x="709.00" y="124.29" width="86.43" height="335.71" fill="#111827"><title>tiny_llm_ptq / admm_uniform_online_aggressive: 0.2543</title></rect>
+<rect x="797.43" y="127.26" width="86.43" height="332.74" fill="#f28e2b"><title>tiny_llm_ptq / awq_like_scale_grid: 0.252</title></rect>
+<rect x="885.86" y="460.00" width="86.43" height="0.00" fill="#6b7280"><title>tiny_llm_ptq / fp16_reference: 1e-12</title></rect>
+<rect x="974.29" y="189.51" width="86.43" height="270.49" fill="#e15759"><title>tiny_llm_ptq / gptq_like_sequential: 0.2049</title></rect>
+<rect x="1062.71" y="166.92" width="86.43" height="293.08" fill="#59a14f"><title>tiny_llm_ptq / hessian_diag_clip: 0.222</title></rect>
+<rect x="1151.14" y="127.26" width="86.43" height="332.74" fill="#4e79a7"><title>tiny_llm_ptq / rtn_per_channel: 0.252</title></rect>
+<rect x="1239.57" y="127.26" width="86.43" height="332.74" fill="#edc948"><title>tiny_llm_ptq / smoothquant_like_scale_grid: 0.252</title></rect>
+<rect x="82" y="520" width="10" height="10" fill="#9c755f"/>
+<text x="97" y="530" font-size="11" font-family="Arial">admm_awq_like_fixed10</text>
+<rect x="227" y="520" width="10" height="10" fill="#8c6d31"/>
+<text x="242" y="530" font-size="11" font-family="Arial">admm_awq_like_online_aggressive</text>
+<rect x="372" y="520" width="10" height="10" fill="#d37295"/>
+<text x="387" y="530" font-size="11" font-family="Arial">admm_gptq_like_fixed10</text>
+<rect x="517" y="520" width="10" height="10" fill="#6f63b6"/>
+<text x="532" y="530" font-size="11" font-family="Arial">admm_gptq_like_online_aggressive</text>
+<rect x="662" y="520" width="10" height="10" fill="#76b7b2"/>
+<text x="677" y="530" font-size="11" font-family="Arial">admm_hessian_diag_fixed10</text>
+<rect x="807" y="520" width="10" height="10" fill="#2f8f6b"/>
+<text x="822" y="530" font-size="11" font-family="Arial">admm_hessian_diag_online_aggressive</text>
+<rect x="952" y="520" width="10" height="10" fill="#b07aa1"/>
+<text x="967" y="530" font-size="11" font-family="Arial">admm_uniform_fixed10</text>
+<rect x="1097" y="520" width="10" height="10" fill="#111827"/>
+<text x="1112" y="530" font-size="11" font-family="Arial">admm_uniform_online_aggressive</text>
+<rect x="1242" y="520" width="10" height="10" fill="#f28e2b"/>
+<text x="1257" y="530" font-size="11" font-family="Arial">awq_like_scale_grid</text>
+<rect x="1387" y="520" width="10" height="10" fill="#6b7280"/>
+<text x="1402" y="530" font-size="11" font-family="Arial">fp16_reference</text>
+<rect x="1532" y="520" width="10" height="10" fill="#e15759"/>
+<text x="1547" y="530" font-size="11" font-family="Arial">gptq_like_sequential</text>
+<rect x="1677" y="520" width="10" height="10" fill="#59a14f"/>
+<text x="1692" y="530" font-size="11" font-family="Arial">hessian_diag_clip</text>
+<rect x="1822" y="520" width="10" height="10" fill="#4e79a7"/>
+<text x="1837" y="530" font-size="11" font-family="Arial">rtn_per_channel</text>
+<rect x="1967" y="520" width="10" height="10" fill="#edc948"/>
+<text x="1982" y="530" font-size="11" font-family="Arial">smoothquant_like_scale_grid</text>
+</svg>

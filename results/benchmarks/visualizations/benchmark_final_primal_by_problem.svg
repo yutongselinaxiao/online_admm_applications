@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="560" viewBox="0 0 1420 560" role="img" aria-label="Benchmark Average Final Primal Residual">
+<title>Benchmark Average Final Primal Residual</title>
+<rect width="1420" height="560" fill="#ffffff"/>
+<text x="82" y="28" font-size="20" font-family="Arial" font-weight="700">Benchmark Average Final Primal Residual</text>
+<text x="18" y="258.0" transform="rotate(-90 18 258.0)" font-size="12" font-family="Arial">primal residual</text>
+<line x1="82" x2="1396" y1="460.00" y2="460.00" stroke="#e5e7eb"/>
+<text x="74" y="464.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-5</text>
+<line x1="82" x2="1396" y1="359.00" y2="359.00" stroke="#e5e7eb"/>
+<text x="74" y="363.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-4</text>
+<line x1="82" x2="1396" y1="258.00" y2="258.00" stroke="#e5e7eb"/>
+<text x="74" y="262.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-3</text>
+<line x1="82" x2="1396" y1="157.00" y2="157.00" stroke="#e5e7eb"/>
+<text x="74" y="161.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-2</text>
+<line x1="82" x2="1396" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="74" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-2</text>
+<text x="301.00" y="506" text-anchor="middle" font-size="12" font-family="Arial">consensus lasso</text>
+<rect x="90.00" y="78.80" width="36.36" height="381.20" fill="#bab0ac"><title>consensus_lasso / bb_online_penalty_simplified: 0.006771</title></rect>
+<rect x="128.36" y="337.10" width="36.36" height="122.90" fill="#59a14f"><title>consensus_lasso / fixed_rho_1: 8.178e-05</title></rect>
+<rect x="166.73" y="345.52" width="36.36" height="114.48" fill="#b07aa1"><title>consensus_lasso / online_ogd: 7.081e-05</title></rect>
+<rect x="205.09" y="335.62" width="36.36" height="124.38" fill="#76b7b2"><title>consensus_lasso / online_ogd_epoch5: 8.387e-05</title></rect>
+<rect x="243.45" y="345.52" width="36.36" height="114.48" fill="#4e79a7"><title>consensus_lasso / online_ogd_freeze50: 7.081e-05</title></rect>
+<rect x="281.82" y="270.66" width="36.36" height="189.34" fill="#e15759"><title>consensus_lasso / online_ogd_no_dual_rescale: 0.0002547</title></rect>
+<rect x="320.18" y="337.10" width="36.36" height="122.90" fill="#111827"><title>consensus_lasso / oracle_fixed_grid: 8.178e-05</title></rect>
+<rect x="358.55" y="337.10" width="36.36" height="122.90" fill="#edc948"><title>consensus_lasso / residual_balance_normalized: 8.178e-05</title></rect>
+<rect x="396.91" y="337.10" width="36.36" height="122.90" fill="#f28e2b"><title>consensus_lasso / residual_balance_raw: 8.178e-05</title></rect>
+<rect x="435.27" y="337.10" width="36.36" height="122.90" fill="#ff9da7"><title>consensus_lasso / residual_balance_relative: 8.178e-05</title></rect>
+<rect x="473.64" y="336.52" width="36.36" height="123.48" fill="#9c755f"><title>consensus_lasso / spectral_aadmm_xu2017: 8.259e-05</title></rect>
+<text x="739.00" y="506" text-anchor="middle" font-size="12" font-family="Arial">graphical lasso</text>
+<rect x="528.00" y="344.84" width="36.36" height="115.16" fill="#bab0ac"><title>graphical_lasso / bb_online_penalty_simplified: 7.163e-05</title></rect>
+<rect x="566.36" y="341.80" width="36.36" height="118.20" fill="#59a14f"><title>graphical_lasso / fixed_rho_1: 7.547e-05</title></rect>
+<rect x="604.73" y="335.25" width="36.36" height="124.75" fill="#b07aa1"><title>graphical_lasso / online_ogd: 8.44e-05</title></rect>
+<rect x="643.09" y="330.86" width="36.36" height="129.14" fill="#76b7b2"><title>graphical_lasso / online_ogd_epoch5: 9.098e-05</title></rect>
+<rect x="681.45" y="335.25" width="36.36" height="124.75" fill="#4e79a7"><title>graphical_lasso / online_ogd_freeze50: 8.44e-05</title></rect>
+<rect x="719.82" y="74.10" width="36.36" height="385.90" fill="#e15759"><title>graphical_lasso / online_ogd_no_dual_rescale: 0.007338</title></rect>
+<rect x="758.18" y="341.80" width="36.36" height="118.20" fill="#111827"><title>graphical_lasso / oracle_fixed_grid: 7.547e-05</title></rect>
+<rect x="796.55" y="341.80" width="36.36" height="118.20" fill="#edc948"><title>graphical_lasso / residual_balance_normalized: 7.547e-05</title></rect>
+<rect x="834.91" y="341.80" width="36.36" height="118.20" fill="#f28e2b"><title>graphical_lasso / residual_balance_raw: 7.547e-05</title></rect>
+<rect x="873.27" y="341.80" width="36.36" height="118.20" fill="#ff9da7"><title>graphical_lasso / residual_balance_relative: 7.547e-05</title></rect>
+<rect x="911.64" y="356.21" width="36.36" height="103.79" fill="#9c755f"><title>graphical_lasso / spectral_aadmm_xu2017: 5.898e-05</title></rect>
+<text x="1177.00" y="506" text-anchor="middle" font-size="12" font-family="Arial">tv denoising</text>
+<rect x="966.00" y="329.84" width="36.36" height="130.16" fill="#bab0ac"><title>tv_denoising / bb_online_penalty_simplified: 9.258e-05</title></rect>
+<rect x="1004.36" y="281.94" width="36.36" height="178.06" fill="#59a14f"><title>tv_denoising / fixed_rho_1: 0.00021</title></rect>
+<rect x="1042.73" y="329.29" width="36.36" height="130.71" fill="#b07aa1"><title>tv_denoising / online_ogd: 9.346e-05</title></rect>
+<rect x="1081.09" y="325.54" width="36.36" height="134.46" fill="#76b7b2"><title>tv_denoising / online_ogd_epoch5: 9.965e-05</title></rect>
+<rect x="1119.45" y="334.65" width="36.36" height="125.35" fill="#4e79a7"><title>tv_denoising / online_ogd_freeze50: 8.528e-05</title></rect>
+<rect x="1157.82" y="107.72" width="36.36" height="352.28" fill="#e15759"><title>tv_denoising / online_ogd_no_dual_rescale: 0.00413</title></rect>
+<rect x="1196.18" y="373.84" width="36.36" height="86.16" fill="#111827"><title>tv_denoising / oracle_fixed_grid: 4.363e-05</title></rect>
+<rect x="1234.55" y="326.96" width="36.36" height="133.04" fill="#edc948"><title>tv_denoising / residual_balance_normalized: 9.726e-05</title></rect>
+<rect x="1272.91" y="311.67" width="36.36" height="148.33" fill="#f28e2b"><title>tv_denoising / residual_balance_raw: 0.0001263</title></rect>
+<rect x="1311.27" y="349.92" width="36.36" height="110.08" fill="#ff9da7"><title>tv_denoising / residual_balance_relative: 6.568e-05</title></rect>
+<rect x="1349.64" y="392.85" width="36.36" height="67.15" fill="#9c755f"><title>tv_denoising / spectral_aadmm_xu2017: 3.152e-05</title></rect>
+<rect x="82" y="520" width="10" height="10" fill="#bab0ac"/>
+<text x="97" y="530" font-size="11" font-family="Arial">bb_online_penalty_simplified</text>
+<rect x="227" y="520" width="10" height="10" fill="#59a14f"/>
+<text x="242" y="530" font-size="11" font-family="Arial">fixed_rho_1</text>
+<rect x="372" y="520" width="10" height="10" fill="#b07aa1"/>
+<text x="387" y="530" font-size="11" font-family="Arial">online_ogd</text>
+<rect x="517" y="520" width="10" height="10" fill="#76b7b2"/>
+<text x="532" y="530" font-size="11" font-family="Arial">online_ogd_epoch5</text>
+<rect x="662" y="520" width="10" height="10" fill="#4e79a7"/>
+<text x="677" y="530" font-size="11" font-family="Arial">online_ogd_freeze50</text>
+<rect x="807" y="520" width="10" height="10" fill="#e15759"/>
+<text x="822" y="530" font-size="11" font-family="Arial">online_ogd_no_dual_rescale</text>
+<rect x="952" y="520" width="10" height="10" fill="#111827"/>
+<text x="967" y="530" font-size="11" font-family="Arial">oracle_fixed_grid</text>
+<rect x="1097" y="520" width="10" height="10" fill="#edc948"/>
+<text x="1112" y="530" font-size="11" font-family="Arial">residual_balance_normalized</text>
+<rect x="1242" y="520" width="10" height="10" fill="#f28e2b"/>
+<text x="1257" y="530" font-size="11" font-family="Arial">residual_balance_raw</text>
+<rect x="1387" y="520" width="10" height="10" fill="#ff9da7"/>
+<text x="1402" y="530" font-size="11" font-family="Arial">residual_balance_relative</text>
+<rect x="1532" y="520" width="10" height="10" fill="#9c755f"/>
+<text x="1547" y="530" font-size="11" font-family="Arial">spectral_aadmm_xu2017</text>
+</svg>

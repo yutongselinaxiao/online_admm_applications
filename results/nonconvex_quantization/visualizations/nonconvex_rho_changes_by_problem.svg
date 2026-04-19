@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="560" viewBox="0 0 1420 560" role="img" aria-label="Nonconvex Quantization Rho Changes">
+<title>Nonconvex Quantization Rho Changes</title>
+<rect width="1420" height="560" fill="#ffffff"/>
+<text x="82" y="28" font-size="20" font-family="Arial" font-weight="700">Nonconvex Quantization Rho Changes</text>
+<text x="18" y="258.0" transform="rotate(-90 18 258.0)" font-size="12" font-family="Arial">rho changes</text>
+<line x1="82" x2="1396" y1="460.00" y2="460.00" stroke="#e5e7eb"/>
+<text x="74" y="464.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0</text>
+<line x1="82" x2="1396" y1="359.00" y2="359.00" stroke="#e5e7eb"/>
+<text x="74" y="363.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">28</text>
+<line x1="82" x2="1396" y1="258.00" y2="258.00" stroke="#e5e7eb"/>
+<text x="74" y="262.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">55</text>
+<line x1="82" x2="1396" y1="157.00" y2="157.00" stroke="#e5e7eb"/>
+<text x="74" y="161.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">83</text>
+<line x1="82" x2="1396" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="74" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">110</text>
+<text x="410.50" y="506" text-anchor="middle" font-size="12" font-family="Arial">tanh qat nonconvex</text>
+<rect x="90.00" y="460.00" width="47.31" height="0.00" fill="#4e79a7"><title>tanh_qat_nonconvex / fixed_rho_0p1: 1e-12</title></rect>
+<rect x="139.31" y="460.00" width="47.31" height="0.00" fill="#59a14f"><title>tanh_qat_nonconvex / fixed_rho_1: 1e-12</title></rect>
+<rect x="188.62" y="460.00" width="47.31" height="0.00" fill="#e15759"><title>tanh_qat_nonconvex / fixed_rho_10: 1e-12</title></rect>
+<rect x="237.92" y="107.42" width="47.31" height="352.58" fill="#b07aa1"><title>tanh_qat_nonconvex / online_ogd: 96</title></rect>
+<rect x="287.23" y="386.55" width="47.31" height="73.45" fill="#76b7b2"><title>tanh_qat_nonconvex / online_ogd_epoch5: 20</title></rect>
+<rect x="336.54" y="283.71" width="47.31" height="176.29" fill="#9c755f"><title>tanh_qat_nonconvex / online_ogd_freeze50: 48</title></rect>
+<rect x="385.85" y="100.07" width="47.31" height="359.93" fill="#111827"><title>tanh_qat_nonconvex / online_ogd_no_dual_rescale: 98</title></rect>
+<rect x="435.15" y="92.73" width="47.31" height="367.27" fill="#6f63b6"><title>tanh_qat_nonconvex / online_ogd_task_accept: 100</title></rect>
+<rect x="484.46" y="92.73" width="47.31" height="367.27" fill="#2f8f6b"><title>tanh_qat_nonconvex / online_ogd_task_aware: 100</title></rect>
+<rect x="533.77" y="92.73" width="47.31" height="367.27" fill="#d37295"><title>tanh_qat_nonconvex / online_ogd_task_feasibility: 100</title></rect>
+<rect x="583.08" y="460.00" width="47.31" height="0.00" fill="#edc948"><title>tanh_qat_nonconvex / residual_balance_normalized: 1e-12</title></rect>
+<rect x="632.38" y="460.00" width="47.31" height="0.00" fill="#f28e2b"><title>tanh_qat_nonconvex / residual_balance_raw: 1e-12</title></rect>
+<rect x="681.69" y="460.00" width="47.31" height="0.00" fill="#ff9da7"><title>tanh_qat_nonconvex / residual_balance_relative: 1e-12</title></rect>
+<text x="1067.50" y="506" text-anchor="middle" font-size="12" font-family="Arial">tiny llm ptq</text>
+<rect x="747.00" y="460.00" width="47.31" height="0.00" fill="#4e79a7"><title>tiny_llm_ptq / fixed_rho_0p1: 1e-12</title></rect>
+<rect x="796.31" y="460.00" width="47.31" height="0.00" fill="#59a14f"><title>tiny_llm_ptq / fixed_rho_1: 1e-12</title></rect>
+<rect x="845.62" y="460.00" width="47.31" height="0.00" fill="#e15759"><title>tiny_llm_ptq / fixed_rho_10: 1e-12</title></rect>
+<rect x="894.92" y="92.73" width="47.31" height="367.27" fill="#b07aa1"><title>tiny_llm_ptq / online_ogd: 100</title></rect>
+<rect x="944.23" y="386.55" width="47.31" height="73.45" fill="#76b7b2"><title>tiny_llm_ptq / online_ogd_epoch5: 20</title></rect>
+<rect x="993.54" y="276.36" width="47.31" height="183.64" fill="#9c755f"><title>tiny_llm_ptq / online_ogd_freeze50: 50</title></rect>
+<rect x="1042.85" y="92.73" width="47.31" height="367.27" fill="#111827"><title>tiny_llm_ptq / online_ogd_no_dual_rescale: 100</title></rect>
+<rect x="1092.15" y="92.73" width="47.31" height="367.27" fill="#6f63b6"><title>tiny_llm_ptq / online_ogd_task_accept: 100</title></rect>
+<rect x="1141.46" y="92.73" width="47.31" height="367.27" fill="#2f8f6b"><title>tiny_llm_ptq / online_ogd_task_aware: 100</title></rect>
+<rect x="1190.77" y="93.95" width="47.31" height="366.05" fill="#d37295"><title>tiny_llm_ptq / online_ogd_task_feasibility: 99.67</title></rect>
+<rect x="1240.08" y="460.00" width="47.31" height="0.00" fill="#edc948"><title>tiny_llm_ptq / residual_balance_normalized: 1e-12</title></rect>
+<rect x="1289.38" y="460.00" width="47.31" height="0.00" fill="#f28e2b"><title>tiny_llm_ptq / residual_balance_raw: 1e-12</title></rect>
+<rect x="1338.69" y="460.00" width="47.31" height="0.00" fill="#ff9da7"><title>tiny_llm_ptq / residual_balance_relative: 1e-12</title></rect>
+<rect x="82" y="520" width="10" height="10" fill="#4e79a7"/>
+<text x="97" y="530" font-size="11" font-family="Arial">fixed_rho_0p1</text>
+<rect x="227" y="520" width="10" height="10" fill="#59a14f"/>
+<text x="242" y="530" font-size="11" font-family="Arial">fixed_rho_1</text>
+<rect x="372" y="520" width="10" height="10" fill="#e15759"/>
+<text x="387" y="530" font-size="11" font-family="Arial">fixed_rho_10</text>
+<rect x="517" y="520" width="10" height="10" fill="#b07aa1"/>
+<text x="532" y="530" font-size="11" font-family="Arial">online_ogd</text>
+<rect x="662" y="520" width="10" height="10" fill="#76b7b2"/>
+<text x="677" y="530" font-size="11" font-family="Arial">online_ogd_epoch5</text>
+<rect x="807" y="520" width="10" height="10" fill="#9c755f"/>
+<text x="822" y="530" font-size="11" font-family="Arial">online_ogd_freeze50</text>
+<rect x="952" y="520" width="10" height="10" fill="#111827"/>
+<text x="967" y="530" font-size="11" font-family="Arial">online_ogd_no_dual_rescale</text>
+<rect x="1097" y="520" width="10" height="10" fill="#6f63b6"/>
+<text x="1112" y="530" font-size="11" font-family="Arial">online_ogd_task_accept</text>
+<rect x="1242" y="520" width="10" height="10" fill="#2f8f6b"/>
+<text x="1257" y="530" font-size="11" font-family="Arial">online_ogd_task_aware</text>
+<rect x="1387" y="520" width="10" height="10" fill="#d37295"/>
+<text x="1402" y="530" font-size="11" font-family="Arial">online_ogd_task_feasibility</text>
+<rect x="1532" y="520" width="10" height="10" fill="#edc948"/>
+<text x="1547" y="530" font-size="11" font-family="Arial">residual_balance_normalized</text>
+<rect x="1677" y="520" width="10" height="10" fill="#f28e2b"/>
+<text x="1692" y="530" font-size="11" font-family="Arial">residual_balance_raw</text>
+<rect x="1822" y="520" width="10" height="10" fill="#ff9da7"/>
+<text x="1837" y="530" font-size="11" font-family="Arial">residual_balance_relative</text>
+</svg>

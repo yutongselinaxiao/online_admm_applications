@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>LLM Online Loss Sweep</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>LLM Online Loss Sweep</h1>
+  <p>Deploy accuracy and ADMM residual tradeoffs for alternative online penalty losses.</p>
+  <section><h2>Llm Loss Deploy Rel Error Bar</h2><img src="llm_loss_deploy_rel_error_bar.svg" alt="llm_loss_deploy_rel_error_bar"></section>
+<section><h2>Llm Loss Final Primal Bar</h2><img src="llm_loss_final_primal_bar.svg" alt="llm_loss_final_primal_bar"></section>
+<section><h2>Llm Loss Final Dual Bar</h2><img src="llm_loss_final_dual_bar.svg" alt="llm_loss_final_dual_bar"></section>
+<section><h2>Llm Loss Final Residual Max Bar</h2><img src="llm_loss_final_residual_max_bar.svg" alt="llm_loss_final_residual_max_bar"></section>
+<section><h2>Llm Loss Log Residual Auc Bar</h2><img src="llm_loss_log_residual_auc_bar.svg" alt="llm_loss_log_residual_auc_bar"></section>
+<section><h2>Llm Loss Final Rho Bar</h2><img src="llm_loss_final_rho_bar.svg" alt="llm_loss_final_rho_bar"></section>
+<section><h2>Llm Loss Tradeoff Final Residual Max Vs Deploy</h2><img src="llm_loss_tradeoff_final_residual_max_vs_deploy.svg" alt="llm_loss_tradeoff_final_residual_max_vs_deploy"></section>
+<section><h2>Llm Loss Tradeoff Final Primal Vs Deploy</h2><img src="llm_loss_tradeoff_final_primal_vs_deploy.svg" alt="llm_loss_tradeoff_final_primal_vs_deploy"></section>
+<section><h2>Llm Loss Tradeoff Log Residual Auc Vs Deploy</h2><img src="llm_loss_tradeoff_log_residual_auc_vs_deploy.svg" alt="llm_loss_tradeoff_log_residual_auc_vs_deploy"></section>
+<section><h2>Llm Loss Deploy Rel Error Seed0</h2><img src="llm_loss_deploy_rel_error_seed0.svg" alt="llm_loss_deploy_rel_error_seed0"></section>
+<section><h2>Llm Loss Primal Norm Seed0</h2><img src="llm_loss_primal_norm_seed0.svg" alt="llm_loss_primal_norm_seed0"></section>
+<section><h2>Llm Loss Dual Norm Seed0</h2><img src="llm_loss_dual_norm_seed0.svg" alt="llm_loss_dual_norm_seed0"></section>
+<section><h2>Llm Loss Rho Seed0</h2><img src="llm_loss_rho_seed0.svg" alt="llm_loss_rho_seed0"></section>
+  <section>
+    <h2>Mean Metrics</h2>
+    <table>
+<thead><tr>
+<th>method</th>
+<th>deploy_rel_error</th>
+<th>final_primal</th>
+<th>final_dual</th>
+<th>final_residual_max</th>
+<th>log_residual_auc</th>
+<th>final_rho</th>
+</tr></thead><tbody>
+<tr>
+<td>online_ogd_task_feas_aggressive</td>
+<td>0.254</td>
+<td>1.075</td>
+<td>37.367</td>
+<td>37.367</td>
+<td>1.491</td>
+<td>29.425</td>
+</tr>
+<tr>
+<td>fixed_rho_10</td>
+<td>0.278</td>
+<td>2.187</td>
+<td>28.211</td>
+<td>28.211</td>
+<td>1.430</td>
+<td>10.000</td>
+</tr>
+<tr>
+<td>online_ogd_task_feas_mid</td>
+<td>0.282</td>
+<td>2.974</td>
+<td>23.721</td>
+<td>23.721</td>
+<td>1.352</td>
+<td>6.352</td>
+</tr>
+<tr>
+<td>online_ogd_task_feasibility</td>
+<td>0.316</td>
+<td>5.794</td>
+<td>15.797</td>
+<td>15.797</td>
+<td>1.205</td>
+<td>2.048</td>
+</tr>
+<tr>
+<td>fixed_rho_1</td>
+<td>0.339</td>
+<td>7.067</td>
+<td>9.824</td>
+<td>9.824</td>
+<td>0.987</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>online_ogd_task_aware</td>
+<td>0.347</td>
+<td>7.196</td>
+<td>9.963</td>
+<td>9.963</td>
+<td>1.037</td>
+<td>1.002</td>
+</tr>
+<tr>
+<td>online_ogd_balance</td>
+<td>0.349</td>
+<td>7.643</td>
+<td>7.750</td>
+<td>7.750</td>
+<td>0.964</td>
+<td>0.721</td>
+</tr>
+<tr>
+<td>fixed_rho_0p1</td>
+<td>0.362</td>
+<td>8.961</td>
+<td>1.409</td>
+<td>8.961</td>
+<td>0.955</td>
+<td>0.100</td>
+</tr>
+<tr>
+<td>online_ogd_sum_log_residuals</td>
+<td>0.364</td>
+<td>9.097</td>
+<td>1.542</td>
+<td>9.097</td>
+<td>0.943</td>
+<td>0.109</td>
+</tr>
+<tr>
+<td>online_ogd_task_norm_magnitude</td>
+<td>0.366</td>
+<td>8.717</td>
+<td>0.053</td>
+<td>8.717</td>
+<td>0.953</td>
+<td>0.00357</td>
+</tr>
+<tr>
+<td>online_ogd_task_norm_mag_feas_high</td>
+<td>0.367</td>
+<td>8.731</td>
+<td>0.095</td>
+<td>8.731</td>
+<td>0.951</td>
+<td>0.00638</td>
+</tr>
+<tr>
+<td>online_ogd_norm_magnitude</td>
+<td>0.368</td>
+<td>8.720</td>
+<td>0.041</td>
+<td>8.720</td>
+<td>0.954</td>
+<td>0.00273</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>

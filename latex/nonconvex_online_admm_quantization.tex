@@ -1,0 +1,969 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\proj}{\operatorname{Proj}}
+\newcommand{\clip}{\operatorname{clip}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\ip}[2]{\left\langle #1,#2 \right\rangle}
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\Q}{\mathcal{Q}}
+
+\title{Nonconvex Online ADMM for Quantized Training and LLM-Style PTQ}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Purpose and Positioning}
+
+The convex ADMM analysis should not be transferred to neural-network training
+by replacing the word ``convex'' with ``nonconvex.''  The right theorem target
+changes.  In convex ADMM, one can compare to a global saddle point and prove
+primal-dual residual decay.  In nonconvex training and quantization, the
+appropriate targets are stationarity of a merit function, KKT residuals,
+convergence to a critical point under a KL assumption, or convergence to a
+quantization/noise floor.
+
+The reusable part of the online-penalty proof is the bounded path length of
+\(u_k=\log\rho_k\).  If \(u_k\in[u_{\min},u_{\max}]\) and the update direction
+is clipped, then
+\begin{equation}
+    u_{k+1}
+    =
+    \Pi_{[u_{\min},u_{\max}]}
+    (u_k-\eta_k\widetilde g_k),
+    \qquad
+    \norm{\widetilde g_k}\le G_u
+\end{equation}
+implies
+\begin{equation}
+    |u_{k+1}-u_k|\le \eta_k G_u.
+    \label{eq:path-length}
+\end{equation}
+This path-length control does not require convexity of the primal problem or
+convexity of the scalar meta-loss.  It only requires projection, clipping, and
+compactness of \(U=[u_{\min},u_{\max}]\).  The nonconvex proof should therefore
+separate the penalty-path perturbation layer from the nonconvex ADMM descent
+layer.
+
+\section{Generic Nonconvex Variable-Penalty ADMM}
+
+Consider
+\begin{equation}
+    \min_{x,z}\; f(x)+g(z)
+    \quad \text{s.t.}\quad
+    Ax+Bz=c,
+    \label{eq:generic-nonconvex}
+\end{equation}
+where \(f\) may be smooth nonconvex and \(g\) may be nonsmooth, weakly convex,
+prox-regular, or an indicator of a discrete quantization set.  The unscaled
+augmented Lagrangian is
+\begin{equation}
+    \Lagr_{\rho}(x,z,\lambda)
+    =
+    f(x)+g(z)+\ip{\lambda}{Ax+Bz-c}
+    +\frac{\rho}{2}\norm{Ax+Bz-c}^2.
+\end{equation}
+A proof-friendly nonconvex ADMM scheme adds proximal regularization:
+\begin{align}
+    x^{k+1}
+    &\approx
+    \argmin_x
+    \Lagr_{\rho_k}(x,z^k,\lambda^k)
+    +\frac{\tau_x}{2}\norm{x-x^k}^2,\\
+    z^{k+1}
+    &\approx
+    \argmin_z
+    \Lagr_{\rho_k}(x^{k+1},z,\lambda^k)
+    +\frac{\tau_z}{2}\norm{z-z^k}^2,\\
+    \lambda^{k+1}
+    &=
+    \lambda^k+\rho_k(Ax^{k+1}+Bz^{k+1}-c).
+\end{align}
+In scaled form, \(w^k=\lambda^k/\rho_k\), changing \(\rho\) still requires
+\begin{equation}
+    w^{k+1}\leftarrow \frac{\rho_k}{\rho_{k+1}}w^{k+1}.
+    \label{eq:nonconvex-rescale}
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{Nonconvex online ADMM with bounded log-penalty path}
+\label{alg:nonconvex-online-admm}
+\begin{algorithmic}[1]
+\Require \(x^0,z^0,w^0,\rho_0\), proximal parameters \(\tau_x,\tau_z\)
+\For{\(k=0,1,\ldots,K-1\)}
+    \State Approximately minimize the \(x\)-subproblem with proximal term
+    \State Approximately minimize or project the \(z\)-subproblem
+    \State \(w^{k+1}\gets w^k+Ax^{k+1}+Bz^{k+1}-c\)
+    \State Compute \(r^{k+1}=Ax^{k+1}+Bz^{k+1}-c\)
+    \State Compute \(d^{k+1}=B(z^{k+1}-z^k)\)
+    \State \(g_k\gets u_k+\log(\norm{d^{k+1}}+\epsilon)
+           -\log(\norm{r^{k+1}}+\epsilon)\)
+    \State \(u_{k+1}\gets
+           \Pi_U(u_k-\eta_k\clip(g_k;G_u))\), \(\rho_{k+1}=e^{u_{k+1}}\)
+    \If{\(\rho_{k+1}\ne\rho_k\)}
+        \State Rescale \(w^{k+1}\gets(\rho_k/\rho_{k+1})w^{k+1}\)
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Task-Aware Online Losses for Nonconvex Quantization}
+
+The residual-balancing loss is useful because it is analytic in
+\(u=\log\rho\), but it is not necessarily aligned with deploy quality.  For
+quantization, the observed task metric
+\[
+    m_k =
+    \begin{cases}
+        \text{deploy loss}, & \text{quantized training},\\
+        \text{calibration relative error}, & \text{PTQ},
+    \end{cases}
+\]
+can be fed back into the penalty update.  The experiments implement three
+online losses.  The baseline residual loss is
+\begin{equation}
+    \ell_k^{\mathrm{res}}(u)
+    =
+    \frac{1}{2}
+    \left(
+        u+\log(\norm{d^{k+1}}+\epsilon)
+        -\log(\norm{r^{k+1}}+\epsilon)
+    \right)^2,
+    \label{eq:res-online-loss-nonconvex}
+\end{equation}
+where \(r^{k+1}=W^{k+1}-Z^{k+1}\) and
+\(d^{k+1}=Z^{k+1}-Z^k\) in the quantization split.  Its gradient is
+\begin{equation}
+    g_k^{\mathrm{res}}
+    =
+    u_k+\log(\norm{d^{k+1}}+\epsilon)
+    -\log(\norm{r^{k+1}}+\epsilon).
+\end{equation}
+
+\subsection{Composite Task-Secant Loss}
+
+Because the deploy metric is a black-box function of the previous penalty
+trajectory, the code uses a one-dimensional secant estimate:
+\begin{equation}
+    g_k^{\mathrm{task}}
+    =
+    \clip\left(
+    \frac{\log(m_k+\epsilon)-\log(m_{k-1}+\epsilon)}
+         {u_k-u_{k-1}},
+    G_{\mathrm{task}}
+    \right)
+    \quad \text{when } |u_k-u_{k-1}|>\epsilon,
+    \label{eq:task-secant-gradient}
+\end{equation}
+and \(g_k^{\mathrm{task}}=0\) otherwise.  The composite update is
+\begin{equation}
+    u_{k+1}
+    =
+    \Pi_U
+    \left(
+        u_k-\eta_k
+        \clip\left(
+            \alpha g_k^{\mathrm{res}}
+            +\beta g_k^{\mathrm{task}},
+            G_u
+        \right)
+    \right).
+    \label{eq:task-aware-update}
+\end{equation}
+This is the method labeled \texttt{online\_ogd\_task\_aware}.
+
+\subsection{Feasibility-Guarded Task Loss}
+
+The feasibility-guarded variant adds pressure to increase \(\rho\) when the
+current primal residual is large relative to the ADMM stopping threshold
+\(\varepsilon_k^{\mathrm{pri}}\).  Define
+\begin{equation}
+    s_k^{\mathrm{feas}}
+    =
+    \clip\left(
+        \log
+        \frac{\norm{r^{k+1}}+\epsilon}
+             {\varepsilon_k^{\mathrm{pri}}+\epsilon},
+        G_u
+    \right).
+\end{equation}
+The update direction becomes
+\begin{equation}
+    g_k^{\mathrm{ft}}
+    =
+    \clip\left(
+        \alpha g_k^{\mathrm{res}}
+        +\beta g_k^{\mathrm{task}}
+        -\chi s_k^{\mathrm{feas}},
+        G_u
+    \right).
+    \label{eq:feas-task-update}
+\end{equation}
+The minus sign is intentional: if \(s_k^{\mathrm{feas}}>0\), the projected OGD
+step \(u_{k+1}=u_k-\eta_k g_k^{\mathrm{ft}}\) moves \(u\) upward.  This is the
+method labeled \texttt{online\_ogd\_task\_feasibility}.
+
+\subsection{Accept/Reject Task Safeguard}
+
+The accept/reject ablation shrinks the penalty when the task metric increases
+too quickly:
+\begin{equation}
+    \log(m_k+\epsilon)-\log(m_{k-1}+\epsilon)>\Delta_{\max}
+    \quad\Longrightarrow\quad
+    u_{k+1}=\Pi_U(u_k+\log\theta),
+    \qquad 0<\theta<1.
+    \label{eq:task-accept-reject}
+\end{equation}
+Otherwise it uses the composite task-secant update
+\eqref{eq:task-aware-update}.  The current experiment shows that this
+one-sided shrink rule can drive \(\rho\) too low in PTQ, so it is best treated
+as a diagnostic ablation rather than a final algorithm.
+
+\begin{algorithm}[t]
+\caption{Task-aware online penalty update}
+\label{alg:task-aware-penalty}
+\begin{algorithmic}[1]
+\Require Current \(u_k\), residuals \(r^{k+1},d^{k+1}\), task metric \(m_k\)
+\State Compute \(g_k^{\mathrm{res}}\) from \eqref{eq:res-online-loss-nonconvex}
+\State Estimate \(g_k^{\mathrm{task}}\) from \eqref{eq:task-secant-gradient}
+\If{using feasibility guard}
+    \State Add the feasibility term in \eqref{eq:feas-task-update}
+\ElsIf{using accept/reject and task metric increased too quickly}
+    \State Shrink \(u_k\) according to \eqref{eq:task-accept-reject}
+\Else
+    \State Apply the composite update \eqref{eq:task-aware-update}
+\EndIf
+\State Return \(\rho_{k+1}=\exp(u_{k+1})\) and rescale the scaled dual
+\end{algorithmic}
+\end{algorithm}
+
+\section{Robustness to Initial Penalty}
+
+The online update should be tested over a grid of initial penalties
+\[
+    \rho_0\in\{10^{-2},10^{-1},1,10,10^2\}.
+\]
+This is more informative than reporting a single tuned start.  A projected
+online method is robust in the penalty path if different initializations lead
+to similar terminal values of \(u_k=\log\rho_k\).  However, robustness in
+\(\rho_k\) is not the same as robustness in deploy quality.  In the current
+experiments, residual-only OGD often returns to a similar final penalty from
+different starts, but quantized deploy loss can still retain finite-horizon
+memory of the early ADMM trajectory.
+
+For a finite horizon \(K\), the initialization sensitivity can be summarized by
+\begin{equation}
+    \operatorname{Range}_\rho(\mathcal A)
+    =
+    \max_{\rho_0\in\mathcal G}
+    M_K(\mathcal A,\rho_0)
+    -
+    \min_{\rho_0\in\mathcal G}
+    M_K(\mathcal A,\rho_0),
+    \label{eq:rho-init-range}
+\end{equation}
+where \(M_K\) is the terminal deploy metric and \(\mathcal G\) is the initial
+penalty grid.  A good online tuner should have both a low mean deploy metric
+and a small range in \eqref{eq:rho-init-range}.
+
+\section{Vector Penalties}
+
+For multi-block quantization, a scalar penalty may be too restrictive because
+different layers have different curvature, activation scales, and
+quantization sensitivity.  The vector-rho extension replaces
+\eqref{eq:quant-split} by
+\begin{equation}
+    \min_{\{W_j,Z_j\}}\;
+    \sum_{j=1}^m F_j(W_j)+I_{\Q_j}(Z_j)
+    \quad\text{s.t.}\quad W_j-Z_j=0,\quad j=1,\ldots,m,
+\end{equation}
+with blockwise scaled ADMM updates
+\begin{align}
+    W_j^{k+1}
+    &\approx
+    \argmin_{W_j}
+    F_j(W_j)
+    +\frac{\rho_{j,k}}{2}
+    \norm{W_j-Z_j^k+U_j^k}^2,\\
+    Z_j^{k+1}
+    &=
+    \proj_{\Q_j}(W_j^{k+1}+U_j^k),\\
+    U_j^{k+1}
+    &=
+    U_j^k+W_j^{k+1}-Z_j^{k+1}.
+\end{align}
+Each block has its own online variable
+\[
+    u_{j,k}=\log\rho_{j,k},
+    \qquad
+    u_k=(u_{1,k},\ldots,u_{m,k})\in U^m.
+\]
+The blockwise residual loss is
+\begin{equation}
+    \ell_{j,k}^{\mathrm{res}}(u_j)
+    =
+    \frac{1}{2}
+    \left(
+        u_j+\log(\norm{Z_j^{k+1}-Z_j^k}+\epsilon)
+        -\log(\norm{W_j^{k+1}-Z_j^{k+1}}+\epsilon)
+    \right)^2.
+\end{equation}
+The vector update is coordinatewise projected OGD:
+\begin{equation}
+    u_{j,k+1}
+    =
+    \Pi_{[u_{\min},u_{\max}]}
+    \left(u_{j,k}-\eta_k \widetilde g_{j,k}\right),
+    \qquad j=1,\ldots,m.
+    \label{eq:vector-rho-update}
+\end{equation}
+After changing \(\rho_{j,k}\), the scaled dual must be rescaled per block:
+\begin{equation}
+    U_j^{k+1}
+    \leftarrow
+    \frac{\rho_{j,k}}{\rho_{j,k+1}}U_j^{k+1}.
+    \label{eq:vector-dual-rescale}
+\end{equation}
+
+For the LLM-style PTQ quadratic block, the vector-rho closed form is
+\begin{equation}
+    \left(
+        \frac{X_j^\top X_j}{n_j}
+        +(\gamma+\rho_{j,k})I
+    \right)
+    W_j^{k+1}
+    =
+    \frac{X_j^\top Y_j}{n_j}
+    +\gamma W_j^{\mathrm{fp}}
+    +\rho_{j,k}(Z_j^k-U_j^k).
+    \label{eq:vector-llm-ptq-w-update}
+\end{equation}
+This is the same argmin as the scalar case, but with a block-specific penalty.
+The proof extension is straightforward at the perturbation layer:
+\begin{equation}
+    \norm{u_{k+1}-u_k}_2
+    \le
+    \eta_k \sqrt{m}\,G_u
+\end{equation}
+when every coordinate gradient is clipped by \(G_u\).  The possible downside is
+statistical and algorithmic: the vector method has more degrees of freedom,
+so it needs reliable blockwise task signals or curvature normalization to avoid
+chasing noisy per-block metrics.
+
+\section{Quantization Split}
+
+The quantization formulation separates continuous trainable weights from a
+deployable quantized copy:
+\begin{equation}
+    \min_{W,Z}\; F(W)+I_{\Q}(Z)
+    \quad \text{s.t.}\quad W-Z=0.
+    \label{eq:quant-split}
+\end{equation}
+Here \(F\) is a calibration, fine-tuning, or training objective and
+\(I_{\Q}\) is the indicator of the quantization set \(\Q\).  The scaled ADMM
+updates are
+\begin{align}
+    W^{k+1}
+    &\approx
+    \argmin_W
+    F(W)+\frac{\rho_k}{2}\norm{W-Z^k+U^k}^2,\\
+    Z^{k+1}
+    &=
+    \proj_{\Q}(W^{k+1}+U^k),\\
+    U^{k+1}
+    &=U^k+W^{k+1}-Z^{k+1}.
+\end{align}
+The projection onto \(\Q\) is nonconvex for low-bit quantization.  For
+symmetric \(b\)-bit uniform per-channel quantization,
+\begin{equation}
+    \Q_b
+    =
+    \{s_j q_{ij}: q_{ij}\in\{-2^{b-1}+1,\ldots,2^{b-1}-1\},
+    \ s_j>0\},
+\end{equation}
+the implementation uses the standard per-output-channel projection heuristic
+\begin{equation}
+    s_j=\frac{\max_i |V_{ij}|}{2^{b-1}-1},
+    \qquad
+    Z_{ij}=s_j\,
+    \operatorname{clip}\!\left(
+    \operatorname{round}(V_{ij}/s_j),-2^{b-1}+1,2^{b-1}-1
+    \right),
+    \label{eq:uniform-quant-proj}
+\end{equation}
+where \(V=W^{k+1}+U^k\).  This is the deployable low-bit projection used in the
+experiments; it is a heuristic projection when the scale is also optimized.
+
+\section{Example 1: Nonconvex Quantized Tanh Network}
+
+The first nonconvex example is a one-hidden-layer regression model
+\begin{equation}
+    \widehat y(W_1,W_2;x)=\tanh(xW_1)W_2.
+\end{equation}
+The ADMM split is
+\begin{equation}
+    \min_{W_1,W_2,Z_1,Z_2}
+    \frac{1}{2n}\norm{\tanh(XW_1)W_2-Y}^2
+    +\frac{\gamma}{2}(\norm{W_1}^2+\norm{W_2}^2)
+    +I_{\Q_b}(Z_1)+I_{\Q_b}(Z_2)
+\end{equation}
+\begin{equation}
+    \text{s.t.}\qquad W_1-Z_1=0,\qquad W_2-Z_2=0.
+\end{equation}
+The continuous \(W\)-update is nonconvex, so it is solved inexactly by several
+gradient steps on
+\begin{align}
+    \Phi_k(W_1,W_2)
+    &=
+    \frac{1}{2n}\norm{\tanh(XW_1)W_2-Y}^2
+    +\frac{\gamma}{2}(\norm{W_1}^2+\norm{W_2}^2)\\
+    &\quad
+    +\frac{\rho_k}{2}\norm{W_1-Z_1^k+U_1^k}^2
+    +\frac{\rho_k}{2}\norm{W_2-Z_2^k+U_2^k}^2.
+\end{align}
+Then
+\begin{equation}
+    Z_i^{k+1}=\proj_{\Q_b}(W_i^{k+1}+U_i^k),
+    \qquad
+    U_i^{k+1}=U_i^k+W_i^{k+1}-Z_i^{k+1},
+    \qquad i=1,2.
+\end{equation}
+This is the closest small-scale analogue of quantized nonconvex training in
+the current codebase.
+
+\section{Example 2: Synthetic LLM-Style Blockwise PTQ}
+
+The second example models layerwise post-training quantization for transformer
+linear blocks.  For each block \(j\), calibration activations \(X_j\) and a
+full-precision weight \(W_j^{\mathrm{fp}}\) define targets
+\begin{equation}
+    Y_j=X_jW_j^{\mathrm{fp}}.
+\end{equation}
+The split problem is
+\begin{equation}
+    \min_{\{W_j,Z_j\}}
+    \sum_j
+    \frac{1}{2n_j}\norm{X_jW_j-Y_j}^2
+    +\frac{\gamma}{2}\norm{W_j-W_j^{\mathrm{fp}}}^2
+    +I_{\Q_b}(Z_j)
+    \quad\text{s.t.}\quad
+    W_j-Z_j=0.
+    \label{eq:llm-ptq}
+\end{equation}
+This is nonconvex because \(Z_j\in\Q_b\), but the continuous \(W_j\)-update is
+quadratic and has the closed form
+\begin{equation}
+    \left(
+        \frac{X_j^\top X_j}{n_j}
+        +(\gamma+\rho_k)I
+    \right)
+    W_j^{k+1}
+    =
+    \frac{X_j^\top Y_j}{n_j}
+    +\gamma W_j^{\mathrm{fp}}
+    +\rho_k(Z_j^k-U_j^k).
+    \label{eq:llm-ptq-w-update}
+\end{equation}
+The quantized block update is
+\begin{equation}
+    Z_j^{k+1}=\proj_{\Q_b}(W_j^{k+1}+U_j^k),
+    \qquad
+    U_j^{k+1}=U_j^k+W_j^{k+1}-Z_j^{k+1}.
+\end{equation}
+The synthetic blocks mimic transformer projections:
+\[
+\texttt{q,k,v,o\_proj},\quad
+\texttt{gate\_proj},\quad
+\texttt{up\_proj},\quad
+\texttt{down\_proj}.
+\]
+The calibration activations are heavy-tailed to mimic outlier channels, and the
+weights contain rare large entries to stress the quantizer.
+
+\section{Experimental Results and Conclusions}
+
+All reported results in this section use three seeds, 100 ADMM iterations, and
+4-bit symmetric per-channel quantization.  The deploy metric for the LLM-style
+PTQ example is relative calibration error; lower is better.
+
+\subsection{Robustness to Initial \texorpdfstring{\(\rho\)}{rho}}
+
+The initial-penalty sweep used
+\(\rho_0\in\{10^{-2},10^{-1},1,10,10^2\}\).  Table
+\ref{tab:rho-robustness} reports mean deploy relative error across this grid,
+as well as the best and worst grid values.
+
+\begin{table}[h]
+\centering
+\caption{Initialization robustness on synthetic LLM PTQ.}
+\label{tab:rho-robustness}
+\begin{tabular}{lcccc}
+\toprule
+Method & Mean deploy & Best deploy & Worst deploy & Relative range\\
+\midrule
+\texttt{online\_ogd} & 0.352 & 0.349 & 0.354 & 1.4\%\\
+\texttt{online\_ogd\_task\_aware} & 0.343 & 0.339 & 0.347 & 2.3\%\\
+\texttt{online\_ogd\_task\_feasibility} & 0.323 & 0.316 & 0.332 & 5.1\%\\
+\texttt{vector\_online\_ogd} & 0.350 & 0.347 & 0.354 & 2.0\%\\
+\texttt{vector\_task\_feasibility} & 0.324 & 0.317 & 0.332 & 4.4\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The scalar online methods are fairly robust with respect to initialization:
+they usually recover similar final penalties even from poor starts.  However,
+the most accurate method is not the most initialization-insensitive method.
+This separates two claims:
+\[
+    \text{robust penalty path}
+    \;\not\Rightarrow\;
+    \text{best deploy accuracy}.
+\]
+The vector-rho implementation is principled, but it only modestly changes the
+result in the present synthetic PTQ setting.  Its main value is diagnostic:
+it can reveal block heterogeneity, but it needs better blockwise task signals
+or curvature normalization before it becomes a clear accuracy win.
+
+\subsection{Alternative Online Losses for LLM PTQ}
+
+Table \ref{tab:llm-loss-sweep} compares several scalar online losses.  The
+new variants include:
+\begin{itemize}
+    \item \texttt{sum\_log\_residuals}: minimize
+    \(\log\norm{r^{k+1}}+\log\norm{s^{k+1}}\), where
+    \(s^{k+1}=\rho_k(Z^{k+1}-Z^k)\).
+    \item \texttt{norm\_magnitude}: minimize squared normalized log residual
+    magnitudes.
+    \item \texttt{task\_feas}: combine the task secant loss with stronger
+    primal-feasibility pressure.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Alternative online losses on synthetic LLM PTQ.}
+\label{tab:llm-loss-sweep}
+\begin{tabular}{lcccc}
+\toprule
+Method & Deploy error & Final primal & Final dual & Final \(\rho\)\\
+\midrule
+\texttt{fixed\_rho\_10} & 0.278 & 2.19 & 28.21 & 10.0\\
+\texttt{online\_ogd\_balance} & 0.349 & 7.64 & 7.75 & 0.72\\
+\texttt{online\_ogd\_task\_feasibility} & 0.316 & 5.79 & 15.80 & 2.05\\
+\texttt{online\_ogd\_task\_feas\_mid} & 0.282 & 2.97 & 23.72 & 6.35\\
+\texttt{online\_ogd\_task\_feas\_aggressive} & \textbf{0.254} & \textbf{1.07} & 37.37 & 29.42\\
+\texttt{online\_ogd\_sum\_log\_residuals} & 0.364 & 9.10 & 1.54 & 0.109\\
+\texttt{online\_ogd\_norm\_magnitude} & 0.368 & 8.72 & 0.041 & 0.0027\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The simple sum-log residual loss is not competitive.  The reason is visible
+from the surrogate derivative.  With current residuals treated as fixed,
+\[
+    \ell_k(u)
+    =
+    \log(\norm{r^{k+1}}+\epsilon)
+    +
+    \log(e^u\norm{d^{k+1}}+\epsilon)
+\]
+has approximately
+\[
+    \frac{\partial \ell_k}{\partial u}\approx 1
+\]
+whenever the dual residual is nonzero.  Projected OGD therefore shrinks
+\(\rho\) almost monotonically.  In the PTQ experiment this weakens the
+continuous/quantized coupling and hurts deploy accuracy.
+
+\subsection{Accuracy--Convergence Tradeoff}
+
+The LLM PTQ results show a real tradeoff.  Residual-balanced OGD has a smaller
+final max ADMM residual than aggressive task-feasibility tuning, but it has
+worse deploy accuracy.  Conversely, the aggressive task-feasibility loss
+improves deploy error from \(0.278\) for fixed \(\rho=10\) to \(0.254\), and
+reduces the primal residual from \(2.19\) to \(1.07\), but increases the dual
+residual from \(28.21\) to \(37.37\).
+
+Thus ``faster convergence'' must be specified carefully.  If convergence means
+lower primal mismatch \(W-Z\), then stronger online penalties can help and may
+be worth it for PTQ because the deployable quantized copy is the object of
+interest.  If convergence means a balanced KKT-like ADMM residual, then the
+aggressive rule is not better.  For quantization, the practical objective is
+often deploy accuracy under a calibration budget, so a Pareto view is more
+appropriate than choosing the method with the smallest residual alone.
+
+\subsection{Comparison to LLM Quantization Proxy Baselines}
+
+To check whether the ADMM quantizer is competitive with existing LLM PTQ
+ideas, the experiments also include local proxy baselines inspired by common
+methods:
+\begin{itemize}
+    \item \textbf{RTN}: per-output-channel round-to-nearest uniform
+    quantization.
+    \item \textbf{GPTQ-like}: sequential Hessian-compensated quantization using
+    the calibration Gram matrix \(X^\top X/n\).
+    \item \textbf{AWQ/SmoothQuant-like}: activation-aware input-channel
+    rescaling grids before uniform quantization.
+    \item \textbf{Hessian diagonal clipping}: scale selection by a diagonal
+    Hessian-weighted reconstruction objective.
+\end{itemize}
+These are compact local implementations on the synthetic calibration problem,
+not official library implementations.  They are nevertheless useful because
+they test the core issue: whether pure ADMM with uniform projection can compete
+against curvature-aware PTQ.
+
+\begin{table}[h]
+\centering
+\caption{ADMM quantization versus local LLM PTQ proxy baselines.}
+\label{tab:llm-proxy-baselines}
+\begin{tabular}{lccc}
+\toprule
+Method & Family & Deploy error & Weight error\\
+\midrule
+\texttt{gptq\_like\_sequential} & Hessian PTQ & \textbf{0.205} & 0.343\\
+\texttt{hessian\_diag\_clip} & Hessian PTQ & 0.222 & \textbf{0.229}\\
+\texttt{rtn\_per\_channel} & RTN & 0.252 & 0.255\\
+\texttt{admm\_task\_feas\_aggressive} & ADMM & 0.254 & 0.266\\
+\texttt{admm\_fixed\_rho\_10} & ADMM & 0.278 & 0.264\\
+\texttt{admm\_task\_feasibility} & ADMM & 0.316 & 0.286\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This result is important.  The current ADMM method, even with aggressive online
+penalty tuning, does not beat Hessian-aware PTQ.  It is roughly competitive
+with RTN, but GPTQ-like error compensation is much stronger on the calibration
+objective.  Therefore the right conclusion is not that online ADMM is already a
+state-of-the-art LLM quantizer.  The right conclusion is:
+\[
+    \text{online penalty tuning helps ADMM,}
+    \qquad
+    \text{but the } Z\text{-projection must become curvature-aware.}
+\]
+The most promising next algorithm is an ADMM framework whose \(Z\)-update uses
+a GPTQ/AWQ-style calibrated quantization step, while the online controller tunes
+the coupling strength and feasibility/accuracy tradeoff.
+
+\subsection{Curvature-Aware ADMM Follow-Up}
+
+The proxy baseline result motivates replacing the Euclidean quantized
+projection by a curvature-aware quantized \(Z\)-update.  For block \(j\), let
+\[
+    H_j=\frac{X_j^\top X_j}{n_j},
+    \qquad
+    V_j^k=W_j^{k+1}+U_j^k.
+\]
+Instead of projecting \(V_j^k\) onto \(\Q_b\) in Euclidean norm, use the
+calibrated quadratic surrogate
+\begin{equation}
+    Z_j^{k+1}
+    \approx
+    \argmin_{Z_j\in\Q_b}
+    \frac{\alpha}{2}
+    \norm{X_j(Z_j-W_j^{\mathrm{fp}})}_F^2
+    +
+    \frac{\rho_k}{2}
+    \norm{Z_j-V_j^k}_F^2.
+    \label{eq:curvature-aware-z}
+\end{equation}
+The continuous minimizer of \eqref{eq:curvature-aware-z} is
+\begin{equation}
+    T_j^k
+    =
+    (\alpha H_j+\rho_k I)^{-1}
+    (\alpha H_j W_j^{\mathrm{fp}}+\rho_k V_j^k).
+    \label{eq:curvature-aware-target}
+\end{equation}
+The implementation then quantizes \(T_j^k\) using one of three approximations:
+diagonal Hessian clipping, GPTQ-like sequential error compensation, or
+activation-aware scaling.  This changes the method from exact ADMM for the
+original split into a majorized/curvature-aware ADMM heuristic.  That is an
+acceptable experimental direction, but the theorem should state the extra
+projection error explicitly.
+
+\begin{table}[h]
+\centering
+\caption{Curvature-aware ADMM on synthetic LLM PTQ.}
+\label{tab:curvature-admm}
+\begin{tabular}{lccc}
+\toprule
+Method & Deploy error & Final primal & Final \(\rho\)\\
+\midrule
+\texttt{gptq\_like\_sequential} & \textbf{0.205} & -- & --\\
+\texttt{admm\_gptq\_like\_online\_aggressive} & 0.214 & \textbf{0.494} & 26.82\\
+\texttt{hessian\_diag\_clip} & 0.222 & -- & --\\
+\texttt{admm\_hessian\_diag\_fixed10} & 0.236 & 1.19 & 10.0\\
+\texttt{admm\_hessian\_diag\_online\_aggressive} & 0.237 & 0.640 & 25.88\\
+\texttt{admm\_uniform\_online\_aggressive} & 0.254 & 1.07 & 29.42\\
+\texttt{rtn\_per\_channel} & 0.252 & -- & --\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This is the strongest evidence so far for the method.  Plain ADMM with uniform
+projection is only RTN-level.  Curvature-aware ADMM with online penalty tuning
+nearly reaches the standalone GPTQ-like proxy while maintaining the ADMM
+structure and producing a much smaller primal residual.  The research message
+should therefore be:
+\[
+    \text{online ADMM is promising when coupled to a strong calibrated}
+    \ Z\text{-update.}
+\]
+The remaining gap to GPTQ-like PTQ is small enough to justify a real-model
+perplexity experiment.
+
+\subsection{Next Online Losses to Test}
+
+The next experiments should test online losses that explicitly encode this
+Pareto structure:
+\begin{enumerate}
+    \item \textbf{Constrained task loss.}  Minimize the task secant loss while
+    penalizing only residual violations above a budget:
+    \[
+        \ell_k(u)=\log(m_k+\epsilon)
+        +\alpha [\log(\norm{r^{k+1}}/\varepsilon_{\rm pri})]_+^2
+        +\beta [\log(\norm{s^{k+1}}/\varepsilon_{\rm dual})-\tau]_+^2.
+    \]
+    \item \textbf{Two-sided bandit probing.}  Occasionally evaluate short
+    copied-state rollouts at \(u_k+\delta\) and \(u_k-\delta\), then estimate
+    a deploy-loss gradient by finite differences.  This is more expensive but
+    less biased than the one-step secant.
+    \item \textbf{Curvature-normalized block loss.}  For vector rho, normalize
+    each block residual by a curvature proxy such as
+    \(\operatorname{tr}(X_j^\top X_j/n_j)\) or the spectral norm of the
+    calibration Gram matrix.
+    \item \textbf{Dual-budget task feasibility.}  Keep the aggressive
+    primal-feasibility pressure, but add a soft cap on dual residual growth so
+    the method searches along the deploy-accuracy/residual Pareto frontier
+    instead of simply increasing \(\rho\).
+\end{enumerate}
+
+\section{Theorems to Prove}
+
+\subsection{Experiment-to-Theorem Map}
+
+The experiments now correspond to distinct theorem components rather than one
+single monolithic claim:
+\begin{table}[h]
+\centering
+\caption{Algorithmic modifications and corresponding theorem targets.}
+\label{tab:theorem-map}
+\begin{tabular}{p{0.31\linewidth}p{0.31\linewidth}p{0.28\linewidth}}
+\toprule
+Modification & Empirical role & Theorem target\\
+\midrule
+Projected OGD on \(u=\log\rho\) & Makes penalty tuning robust to scale and
+initialization & Bounded path length and scalar online-regret perturbation\\
+Task-aware secant loss & Aligns penalty updates with deploy metric & Dynamic
+regret or linearized online-loss bound\\
+Feasibility-task pressure & Improves PTQ deploy accuracy by increasing
+coupling & Pareto/stationarity bound with residual budget\\
+Vector rho & Allows blockwise penalties for transformer layers & Product-space
+path-length bound in \(U^m\)\\
+Curvature-aware \(Z\)-update & Makes ADMM competitive with Hessian PTQ & ADMM
+descent with inexact/majorized quantized projection error\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The final theory should not claim global optimality for nonconvex quantization.
+A realistic theorem stack is:
+\[
+    \text{bounded online penalty path}
+    \;+\;
+    \text{descent up to quantized projection error}
+    \;+\;
+    \text{stationarity/noise floor}
+    \;+\;
+    \text{task/residual Pareto interpretation}.
+\]
+
+\subsection{Theorem A: Deterministic Nonconvex Proximal ADMM Descent}
+
+\textbf{Assumptions.}
+\begin{itemize}
+    \item \(f\) is lower bounded and \(L_f\)-smooth on a bounded level set.
+    \item \(g\) is proper lower-semicontinuous and either weakly convex,
+          prox-regular, or an indicator of a prox-regular set on the relevant
+          level set.
+    \item The subproblems are solved exactly or with summable/relative errors.
+    \item \(\rho_k\in[\rho_{\min},\rho_{\max}]\), and the penalty path has
+          bounded cumulative variation \(\sum_k |u_{k+1}-u_k|<\infty\), or a
+          controlled finite-horizon bound using \eqref{eq:path-length}.
+    \item Proximal parameters \(\tau_x,\tau_z\) dominate the negative
+          curvature of the nonconvex blocks.
+\end{itemize}
+
+\textbf{Merit function.}  Prove descent for
+\begin{equation}
+    \Psi_k
+    =
+    \Lagr_{\rho_k}(x^k,z^k,\lambda^k)
+    +a_x\norm{x^k-x^{k-1}}^2
+    +a_z\norm{z^k-z^{k-1}}^2
+    +a_\lambda\norm{\lambda^k-\lambda^{k-1}}^2.
+\end{equation}
+
+\textbf{Target statement.}  Show that
+\begin{align}
+    \Psi_{k+1}
+    &\le
+    \Psi_k
+    -m_x\norm{x^{k+1}-x^k}^2
+    -m_z\norm{z^{k+1}-z^k}^2
+    -m_r\norm{r^{k+1}}^2\\
+    &\quad
+    +c_u|u_{k+1}-u_k|
+    +c_e\norm{e_k}^2.
+    \label{eq:nonconvex-descent-target}
+\end{align}
+This replaces the convex objective-gap sandwich.  Summing
+\eqref{eq:nonconvex-descent-target} yields best-iterate stationarity and
+residual decay up to the penalty-path and inexactness terms.
+
+\subsection{Theorem B: Online Penalty Perturbation Bound}
+
+Assume the online update satisfies \eqref{eq:path-length}.  Since \(e^u\) and
+\(e^{-u}\) are Lipschitz on compact \(U\), all terms produced by changing
+\(\rho_k\) can be bounded by
+\begin{equation}
+    \sum_{k=0}^{K-1} C |u_{k+1}-u_k|
+    \le
+    C G_u\sum_{k=0}^{K-1}\eta_k.
+\end{equation}
+For \(\eta_k=\eta_0/\sqrt{k+1}\), this gives an \(O(\sqrt K)\) perturbation in
+the summed descent inequality and an \(O(K^{-1/2})\) perturbation after
+averaging.  For full-sequence nonconvex convergence, strengthen this to
+summable variation, finite accepted penalty changes, or an accept/reject
+safeguard.
+
+\subsection{Theorem B2: Task-Aware Online Loss Regret}
+
+The task-aware variants require a separate scalar online-learning statement.
+Let
+\[
+    \widetilde g_k
+    =
+    \clip\left(
+        \alpha g_k^{\mathrm{res}}
+        +\beta g_k^{\mathrm{task}}
+        -\chi s_k^{\mathrm{feas}},
+        G_u
+    \right)
+\]
+with \(\chi=0\) for the composite task-secant method.  If
+\(\widetilde g_k\) is bounded and \(U=[u_{\min},u_{\max}]\) is compact, then
+projected OGD gives the deterministic regret bound
+\begin{equation}
+    \sum_{k=0}^{K-1}
+    \ip{\widetilde g_k}{u_k-u}
+    \le
+    \frac{\diam(U)^2}{2\eta_{K-1}}
+    +
+    \frac{1}{2}\sum_{k=0}^{K-1}\eta_k G_u^2,
+    \qquad \forall u\in U.
+    \label{eq:task-aware-regret}
+\end{equation}
+This theorem does not say that the task metric is convex in \(u\).  Instead,
+it states that the implemented update is stable and has bounded regret against
+the linearized online losses generated by the observed trajectory.  To connect
+it to deploy loss, one must add either a local smoothness assumption for
+\(\log m(u)\), a dynamic-regret comparator sequence, or an empirical
+validation claim.
+
+\subsection{Theorem B3: Curvature-Aware Quantized Projection Error}
+
+For the curvature-aware \(Z\)-update, define the ideal continuous target
+\(T_j^k\) by \eqref{eq:curvature-aware-target} and the quantized output
+\(Z_j^{k+1}\in\Q_b\).  The proof should assume or establish a projection-error
+condition of the form
+\begin{equation}
+    \sum_j
+    \norm{Z_j^{k+1}-T_j^k}_{\alpha H_j+\rho_k I}^2
+    \le
+    \varepsilon_{q,k}^2
+    +
+    c_q
+    \inf_{Z\in\Q_b}
+    \sum_j
+    \norm{Z_j-T_j^k}_{\alpha H_j+\rho_k I}^2.
+    \label{eq:curvature-projection-error}
+\end{equation}
+For exact projection, \(c_q=1\) and \(\varepsilon_{q,k}=0\).  For GPTQ-like,
+AWQ-like, or diagonal-Hessian approximate projections, \(\varepsilon_{q,k}\)
+captures sequential quantization error, scale-grid suboptimality, and
+activation-statistic mismatch.  This condition is the bridge between modern
+PTQ baselines and the nonconvex ADMM descent theorem.
+
+\subsection{Theorem C: Expected Stationarity With Quantization Noise}
+
+For stochastic or randomized quantization, assume
+\begin{equation}
+    \mathbb{E}[e_k\mid\mathcal F_k]=0,
+    \qquad
+    \mathbb{E}\norm{e_k}^2\le \sigma_q^2+\delta_q^2\norm{v_k}^2.
+\end{equation}
+Then prove a bound of the form
+\begin{equation}
+    \frac{1}{K}\sum_{k=0}^{K-1}
+    \mathbb{E}
+    \left[
+        \dist(0,\partial\Psi_{k+1})^2+\norm{r^{k+1}}^2
+    \right]
+    \le
+    O(K^{-1/2})+O(\sigma_q^2+\delta_q^2).
+    \label{eq:noise-floor}
+\end{equation}
+This is the theorem that matches stochastic rounding, low-bit optimizer states,
+and direct quantized training.
+
+\subsection{Theorem D: Local PL or Quadratic-Growth Fast Rate}
+
+Near a pretrained checkpoint or a good PTQ initialization, assume a local PL,
+quadratic-growth, error-bound, or strong-variational-sufficiency condition:
+\begin{equation}
+    \dist(0,\partial\Psi_k)^2
+    \ge
+    \mu(\Psi_k-\Psi^\star)
+\end{equation}
+on the relevant level set.  Then upgrade the expected stationarity result to
+a linear-to-floor statement:
+\begin{equation}
+    \mathbb{E}[\Psi_k-\Psi^\star]
+    \le
+    (1-\mu')^k(\Psi_0-\Psi^\star)
+    +O(\sigma_q^2+\delta_q^2+\varepsilon_q^2).
+\end{equation}
+This is the theorem most aligned with layerwise PTQ, local fine-tuning, and
+curvature-aware quantization methods.
+
+\section{Proof Obligations Checklist}
+
+\begin{enumerate}
+    \item Replace convex saddle-point gap lemmas by sufficient descent of
+          \(\Psi_k\).
+    \item Replace monotonicity of \(\partial g\) by weak monotonicity,
+          prox-regularity, or an explicit projection-error inequality.
+    \item Derive bounded iterates from bounded level sets of \(\Psi_k\), weight
+          decay, or trust-region/proximal terms.
+    \item Keep the online-penalty result as a path-length perturbation theorem,
+          not as a convex-regret theorem unless the scalar meta-loss assumptions
+          are truly satisfied.
+    \item For quantization, state whether errors are deterministic bounded
+          errors, unbiased stochastic-rounding errors, or relative
+          floating-point errors.
+    \item Add a local PL/QG theorem only after the general stationarity theorem
+          is established.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520" role="img" aria-label="Tanh Qat Nonconvex Final Rho">
+<title>Tanh Qat Nonconvex Final Rho</title>
+<rect width="1180" height="520" fill="#ffffff"/>
+<text x="84" y="30" font-size="20" font-family="Arial" font-weight="700">Tanh Qat Nonconvex Final Rho</text>
+<text x="507.0" y="506" text-anchor="middle" font-size="12" font-family="Arial">initial rho</text>
+<text x="18" y="251.0" transform="rotate(-90 18 251.0)" font-size="12" font-family="Arial">final rho</text>
+<line x1="84" x2="930" y1="448.00" y2="448.00" stroke="#e5e7eb"/>
+<text x="76" y="452.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e-1</text>
+<line x1="84" x2="930" y1="349.50" y2="349.50" stroke="#e5e7eb"/>
+<text x="76" y="353.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="84" x2="930" y1="251.00" y2="251.00" stroke="#e5e7eb"/>
+<text x="76" y="255.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="84" x2="930" y1="152.50" y2="152.50" stroke="#e5e7eb"/>
+<text x="76" y="156.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="84" x2="930" y1="54.00" y2="54.00" stroke="#e5e7eb"/>
+<text x="76" y="58.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e1</text>
+<line x1="84.00" x2="84.00" y1="54" y2="448" stroke="#f3f4f6"/>
+<text x="84.00" y="468" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">0.01</text>
+<line x1="295.50" x2="295.50" y1="54" y2="448" stroke="#f3f4f6"/>
+<text x="295.50" y="468" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">0.1</text>
+<line x1="507.00" x2="507.00" y1="54" y2="448" stroke="#f3f4f6"/>
+<text x="507.00" y="468" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1</text>
+<line x1="718.50" x2="718.50" y1="54" y2="448" stroke="#f3f4f6"/>
+<text x="718.50" y="468" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">10</text>
+<line x1="930.00" x2="930.00" y1="54" y2="448" stroke="#f3f4f6"/>
+<text x="930.00" y="468" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">100</text>
+<polyline points="84.00,297.38 295.50,296.83 507.00,296.47 718.50,296.15 930.00,293.22" fill="none" stroke="#b07aa1" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><title>online_ogd</title></polyline>
+<polyline points="84.00,304.49 295.50,298.35 507.00,292.13 718.50,290.38 930.00,283.99" fill="none" stroke="#2f8f6b" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><title>online_ogd_task_aware</title></polyline>
+<polyline points="84.00,247.91 295.50,231.88 507.00,222.82 718.50,226.40 930.00,222.38" fill="none" stroke="#d37295" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><title>online_ogd_task_feasibility</title></polyline>
+<line x1="952" x2="968" y1="58" y2="58" stroke="#b07aa1" stroke-width="3"/>
+<text x="974" y="62" font-size="11" font-family="Arial">online_ogd</text>
+<line x1="952" x2="968" y1="80" y2="80" stroke="#2f8f6b" stroke-width="3"/>
+<text x="974" y="84" font-size="11" font-family="Arial">online_ogd_task_aware</text>
+<line x1="952" x2="968" y1="102" y2="102" stroke="#d37295" stroke-width="3"/>
+<text x="974" y="106" font-size="11" font-family="Arial">online_ogd_task_feasibility</text>
+</svg>

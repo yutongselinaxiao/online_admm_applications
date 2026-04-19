@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-label="Deploy Accuracy vs Final Max Admm Residual">
+<title>Deploy Accuracy vs Final Max Admm Residual</title>
+<rect width="1120" height="560" fill="#ffffff"/>
+<text x="96" y="30" font-size="20" font-family="Arial" font-weight="700">Deploy Accuracy vs Final Max Admm Residual</text>
+<text x="458.0" y="544" text-anchor="middle" font-size="12" font-family="Arial">final max ADMM residual</text>
+<text x="20" y="267.0" transform="rotate(-90 20 267.0)" font-size="12" font-family="Arial">deploy relative error</text>
+<line x1="96.00" x2="96.00" y1="56" y2="478" stroke="#f3f4f6"/>
+<text x="96.00" y="498" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="277.00" x2="277.00" y1="56" y2="478" stroke="#f3f4f6"/>
+<text x="277.00" y="498" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="458.00" x2="458.00" y1="56" y2="478" stroke="#f3f4f6"/>
+<text x="458.00" y="498" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1e1</text>
+<line x1="639.00" x2="639.00" y1="56" y2="478" stroke="#f3f4f6"/>
+<text x="639.00" y="498" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1e1</text>
+<line x1="820.00" x2="820.00" y1="56" y2="478" stroke="#f3f4f6"/>
+<text x="820.00" y="498" text-anchor="middle" font-size="11" font-family="Arial" fill="#4b5563">1e2</text>
+<line x1="96" x2="820" y1="478.00" y2="478.00" stroke="#e5e7eb"/>
+<text x="88" y="482.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.244</text>
+<line x1="96" x2="820" y1="372.50" y2="372.50" stroke="#e5e7eb"/>
+<text x="88" y="376.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.279</text>
+<line x1="96" x2="820" y1="267.00" y2="267.00" stroke="#e5e7eb"/>
+<text x="88" y="271.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.313</text>
+<line x1="96" x2="820" y1="161.50" y2="161.50" stroke="#e5e7eb"/>
+<text x="88" y="165.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.348</text>
+<line x1="96" x2="820" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="88" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0.383</text>
+<circle cx="440.74" cy="118.55" r="6" fill="#4e79a7" opacity="0.9"><title>fixed_rho_0p1</title></circle>
+<text x="448.74" y="110.55" font-size="10" font-family="Arial" fill="#111827">fixed_rho_0p1</text>
+<circle cx="455.21" cy="187.76" r="6" fill="#59a14f" opacity="0.9"><title>fixed_rho_1</title></circle>
+<text x="463.21" y="179.76" font-size="10" font-family="Arial" fill="#111827">fixed_rho_1</text>
+<circle cx="621.05" cy="374.18" r="6" fill="#e15759" opacity="0.9"><title>fixed_rho_10</title></circle>
+<text x="629.05" y="366.18" font-size="10" font-family="Arial" fill="#111827">fixed_rho_10</text>
+<circle cx="417.93" cy="157.29" r="6" fill="#b07aa1" opacity="0.9"><title>online_ogd_balance</title></circle>
+<text x="425.93" y="149.29" font-size="10" font-family="Arial" fill="#111827">balance</text>
+<circle cx="436.47" cy="100.83" r="6" fill="#76b7b2" opacity="0.9"><title>online_ogd_norm_magnitude</title></circle>
+<text x="444.47" y="92.83" font-size="10" font-family="Arial" fill="#111827">norm_magnitude</text>
+<circle cx="443.13" cy="112.09" r="6" fill="#111827" opacity="0.9"><title>online_ogd_sum_log_residuals</title></circle>
+<text x="451.13" y="104.09" font-size="10" font-family="Arial" fill="#111827">sum_log_residuals</text>
+<circle cx="457.42" cy="165.62" r="6" fill="#2f8f6b" opacity="0.9"><title>online_ogd_task_aware</title></circle>
+<text x="465.42" y="157.62" font-size="10" font-family="Arial" fill="#111827">task_aware</text>
+<circle cx="665.24" cy="447.01" r="6" fill="#8c6d31" opacity="0.9"><title>online_ogd_task_feas_aggressive</title></circle>
+<text x="673.24" y="439.01" font-size="10" font-family="Arial" fill="#111827">task_feas_aggressive</text>
+<circle cx="593.80" cy="363.59" r="6" fill="#6f63b6" opacity="0.9"><title>online_ogd_task_feas_mid</title></circle>
+<text x="601.80" y="355.59" font-size="10" font-family="Arial" fill="#111827">task_feas_mid</text>
+<circle cx="529.88" cy="257.54" r="6" fill="#d37295" opacity="0.9"><title>online_ogd_task_feasibility</title></circle>
+<text x="537.88" y="249.54" font-size="10" font-family="Arial" fill="#111827">task_feasibility</text>
+<circle cx="436.66" cy="103.54" r="6" fill="#9c755f" opacity="0.9"><title>online_ogd_task_norm_mag_feas_high</title></circle>
+<text x="444.66" y="95.54" font-size="10" font-family="Arial" fill="#111827">task_norm_mag_feas_high</text>
+<circle cx="436.40" cy="107.58" r="6" fill="#f28e2b" opacity="0.9"><title>online_ogd_task_norm_magnitude</title></circle>
+<text x="444.40" y="99.58" font-size="10" font-family="Arial" fill="#111827">task_norm_magnitude</text>
+<circle cx="844" cy="64" r="5" fill="#4e79a7"/>
+<text x="856" y="68" font-size="10" font-family="Arial">fixed_rho_0p1</text>
+<circle cx="844" cy="85" r="5" fill="#59a14f"/>
+<text x="856" y="89" font-size="10" font-family="Arial">fixed_rho_1</text>
+<circle cx="844" cy="106" r="5" fill="#e15759"/>
+<text x="856" y="110" font-size="10" font-family="Arial">fixed_rho_10</text>
+<circle cx="844" cy="127" r="5" fill="#b07aa1"/>
+<text x="856" y="131" font-size="10" font-family="Arial">online_ogd_balance</text>
+<circle cx="844" cy="148" r="5" fill="#76b7b2"/>
+<text x="856" y="152" font-size="10" font-family="Arial">online_ogd_norm_magnitude</text>
+<circle cx="844" cy="169" r="5" fill="#111827"/>
+<text x="856" y="173" font-size="10" font-family="Arial">online_ogd_sum_log_residuals</text>
+<circle cx="844" cy="190" r="5" fill="#2f8f6b"/>
+<text x="856" y="194" font-size="10" font-family="Arial">online_ogd_task_aware</text>
+<circle cx="844" cy="211" r="5" fill="#8c6d31"/>
+<text x="856" y="215" font-size="10" font-family="Arial">online_ogd_task_feas_aggressive</text>
+<circle cx="844" cy="232" r="5" fill="#6f63b6"/>
+<text x="856" y="236" font-size="10" font-family="Arial">online_ogd_task_feas_mid</text>
+<circle cx="844" cy="253" r="5" fill="#d37295"/>
+<text x="856" y="257" font-size="10" font-family="Arial">online_ogd_task_feasibility</text>
+<circle cx="844" cy="274" r="5" fill="#9c755f"/>
+<text x="856" y="278" font-size="10" font-family="Arial">online_ogd_task_norm_mag_feas_high</text>
+<circle cx="844" cy="295" r="5" fill="#f28e2b"/>
+<text x="856" y="299" font-size="10" font-family="Arial">online_ogd_task_norm_magnitude</text>
+</svg>

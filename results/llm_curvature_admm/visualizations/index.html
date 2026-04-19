@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Curvature-Aware Online ADMM PTQ</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1320px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Curvature-Aware Online ADMM PTQ</h1>
+  <p>ADMM variants with uniform, Hessian-diagonal, GPTQ-like, and AWQ-like quantized updates compared to local PTQ proxy baselines.</p>
+  <section><h2>Curvature Admm Deploy Rel Error</h2><img src="curvature_admm_deploy_rel_error.svg" alt="curvature_admm_deploy_rel_error"></section>
+<section><h2>Curvature Admm Weight Rel Error</h2><img src="curvature_admm_weight_rel_error.svg" alt="curvature_admm_weight_rel_error"></section>
+<section><h2>Curvature Admm Final Primal</h2><img src="curvature_admm_final_primal.svg" alt="curvature_admm_final_primal"></section>
+<section><h2>Curvature Admm Final Dual</h2><img src="curvature_admm_final_dual.svg" alt="curvature_admm_final_dual"></section>
+<section><h2>Curvature Admm Final Rho</h2><img src="curvature_admm_final_rho.svg" alt="curvature_admm_final_rho"></section>
+<section><h2>Curvature Admm Deploy Rel Error Seed0</h2><img src="curvature_admm_deploy_rel_error_seed0.svg" alt="curvature_admm_deploy_rel_error_seed0"></section>
+<section><h2>Curvature Admm Primal Norm Seed0</h2><img src="curvature_admm_primal_norm_seed0.svg" alt="curvature_admm_primal_norm_seed0"></section>
+<section><h2>Curvature Admm Dual Norm Seed0</h2><img src="curvature_admm_dual_norm_seed0.svg" alt="curvature_admm_dual_norm_seed0"></section>
+<section><h2>Curvature Admm Rho Seed0</h2><img src="curvature_admm_rho_seed0.svg" alt="curvature_admm_rho_seed0"></section>
+  <section>
+    <h2>Grouped Metrics</h2>
+    <table>
+<thead><tr>
+<th>method</th>
+<th>family</th>
+<th>z_mode</th>
+<th>deploy_rel_error</th>
+<th>weight_rel_error</th>
+<th>final_primal</th>
+<th>final_dual</th>
+<th>final_rho</th>
+</tr></thead><tbody>
+<tr>
+<td>fp16_reference</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>gptq_like_sequential</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0.2049</td>
+<td>0.3431</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>admm_gptq_like_online_aggressive</td>
+<td>curvature_admm</td>
+<td>gptq_like</td>
+<td>0.2142</td>
+<td>0.2636</td>
+<td>0.4942</td>
+<td>16.59</td>
+<td>26.82</td>
+</tr>
+<tr>
+<td>hessian_diag_clip</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0.222</td>
+<td>0.2291</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>admm_hessian_diag_fixed10</td>
+<td>curvature_admm</td>
+<td>hessian_diag</td>
+<td>0.2358</td>
+<td>0.3182</td>
+<td>1.191</td>
+<td>14.99</td>
+<td>10</td>
+</tr>
+<tr>
+<td>admm_hessian_diag_online_aggressive</td>
+<td>curvature_admm</td>
+<td>hessian_diag</td>
+<td>0.2371</td>
+<td>0.2972</td>
+<td>0.6403</td>
+<td>20.6</td>
+<td>25.88</td>
+</tr>
+<tr>
+<td>admm_gptq_like_fixed10</td>
+<td>curvature_admm</td>
+<td>gptq_like</td>
+<td>0.2413</td>
+<td>0.2882</td>
+<td>1.444</td>
+<td>17.49</td>
+<td>10</td>
+</tr>
+<tr>
+<td>admm_awq_like_online_aggressive</td>
+<td>curvature_admm</td>
+<td>awq_like</td>
+<td>0.2482</td>
+<td>0.2612</td>
+<td>0.7545</td>
+<td>26.02</td>
+<td>28.97</td>
+</tr>
+<tr>
+<td>awq_like_scale_grid</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>rtn_per_channel</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>smoothquant_like_scale_grid</td>
+<td>proxy_baseline</td>
+<td></td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>admm_uniform_online_aggressive</td>
+<td>curvature_admm</td>
+<td>uniform</td>
+<td>0.2543</td>
+<td>0.2657</td>
+<td>1.075</td>
+<td>37.37</td>
+<td>29.42</td>
+</tr>
+<tr>
+<td>admm_awq_like_fixed10</td>
+<td>curvature_admm</td>
+<td>awq_like</td>
+<td>0.2561</td>
+<td>0.259</td>
+<td>1.408</td>
+<td>18.19</td>
+<td>10</td>
+</tr>
+<tr>
+<td>admm_uniform_fixed10</td>
+<td>curvature_admm</td>
+<td>uniform</td>
+<td>0.2782</td>
+<td>0.2642</td>
+<td>2.187</td>
+<td>28.21</td>
+<td>10</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>

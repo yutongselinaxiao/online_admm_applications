@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="470" viewBox="0 0 980 470" role="img" aria-label="Average Penalty Changes">
+<title>Average Penalty Changes</title>
+<rect width="980" height="470" fill="#ffffff"/>
+<text x="82" y="28" font-size="20" font-family="Arial" font-weight="700">Average Penalty Changes</text>
+<text x="18" y="213.0" transform="rotate(-90 18 213.0)" font-size="12" font-family="Arial">rho changes</text>
+<line x1="82" x2="956" y1="370.00" y2="370.00" stroke="#e5e7eb"/>
+<text x="74" y="374.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">0</text>
+<line x1="82" x2="956" y1="291.50" y2="291.50" stroke="#e5e7eb"/>
+<text x="74" y="295.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">21</text>
+<line x1="82" x2="956" y1="213.00" y2="213.00" stroke="#e5e7eb"/>
+<text x="74" y="217.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">42</text>
+<line x1="82" x2="956" y1="134.50" y2="134.50" stroke="#e5e7eb"/>
+<text x="74" y="138.50" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">63</text>
+<line x1="82" x2="956" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="74" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">84</text>
+<text x="227.67" y="416" text-anchor="middle" font-size="12" font-family="Arial">consensus lasso</text>
+<rect x="90.00" y="370.00" width="43.89" height="0.00" fill="#4e79a7"><title>consensus_lasso / fixed_rho_0.1: 1e-12</title></rect>
+<rect x="135.89" y="370.00" width="43.89" height="0.00" fill="#59a14f"><title>consensus_lasso / fixed_rho_1.0: 1e-12</title></rect>
+<rect x="181.78" y="370.00" width="43.89" height="0.00" fill="#e15759"><title>consensus_lasso / fixed_rho_10.0: 1e-12</title></rect>
+<rect x="227.67" y="277.76" width="43.89" height="92.24" fill="#b07aa1"><title>consensus_lasso / online_ogd: 24.67</title></rect>
+<rect x="273.56" y="338.84" width="43.89" height="31.16" fill="#76b7b2"><title>consensus_lasso / online_ogd_epoch3: 8.333</title></rect>
+<rect x="319.44" y="370.00" width="43.89" height="0.00" fill="#f28e2b"><title>consensus_lasso / residual_balance: 1e-12</title></rect>
+<text x="519.00" y="416" text-anchor="middle" font-size="12" font-family="Arial">graphical lasso</text>
+<rect x="381.33" y="370.00" width="43.89" height="0.00" fill="#4e79a7"><title>graphical_lasso / fixed_rho_0.1: 1e-12</title></rect>
+<rect x="427.22" y="370.00" width="43.89" height="0.00" fill="#59a14f"><title>graphical_lasso / fixed_rho_1.0: 1e-12</title></rect>
+<rect x="473.11" y="370.00" width="43.89" height="0.00" fill="#e15759"><title>graphical_lasso / fixed_rho_10.0: 1e-12</title></rect>
+<rect x="519.00" y="241.61" width="43.89" height="128.39" fill="#b07aa1"><title>graphical_lasso / online_ogd: 34.33</title></rect>
+<rect x="564.89" y="321.39" width="43.89" height="48.61" fill="#76b7b2"><title>graphical_lasso / online_ogd_epoch3: 13</title></rect>
+<rect x="610.78" y="370.00" width="43.89" height="0.00" fill="#f28e2b"><title>graphical_lasso / residual_balance: 1e-12</title></rect>
+<text x="810.33" y="416" text-anchor="middle" font-size="12" font-family="Arial">tv denoising</text>
+<rect x="672.67" y="370.00" width="43.89" height="0.00" fill="#4e79a7"><title>tv_denoising / fixed_rho_0.1: 1e-12</title></rect>
+<rect x="718.56" y="370.00" width="43.89" height="0.00" fill="#59a14f"><title>tv_denoising / fixed_rho_1.0: 1e-12</title></rect>
+<rect x="764.44" y="370.00" width="43.89" height="0.00" fill="#e15759"><title>tv_denoising / fixed_rho_10.0: 1e-12</title></rect>
+<rect x="810.33" y="84.55" width="43.89" height="285.45" fill="#b07aa1"><title>tv_denoising / online_ogd: 76.33</title></rect>
+<rect x="856.22" y="259.06" width="43.89" height="110.94" fill="#76b7b2"><title>tv_denoising / online_ogd_epoch3: 29.67</title></rect>
+<rect x="902.11" y="368.75" width="43.89" height="1.25" fill="#f28e2b"><title>tv_denoising / residual_balance: 0.3333</title></rect>
+<rect x="82" y="430" width="10" height="10" fill="#4e79a7"/>
+<text x="97" y="440" font-size="11" font-family="Arial">fixed_rho_0.1</text>
+<rect x="227" y="430" width="10" height="10" fill="#59a14f"/>
+<text x="242" y="440" font-size="11" font-family="Arial">fixed_rho_1.0</text>
+<rect x="372" y="430" width="10" height="10" fill="#e15759"/>
+<text x="387" y="440" font-size="11" font-family="Arial">fixed_rho_10.0</text>
+<rect x="517" y="430" width="10" height="10" fill="#b07aa1"/>
+<text x="532" y="440" font-size="11" font-family="Arial">online_ogd</text>
+<rect x="662" y="430" width="10" height="10" fill="#76b7b2"/>
+<text x="677" y="440" font-size="11" font-family="Arial">online_ogd_epoch3</text>
+<rect x="807" y="430" width="10" height="10" fill="#f28e2b"/>
+<text x="822" y="440" font-size="11" font-family="Arial">residual_balance</text>
+</svg>

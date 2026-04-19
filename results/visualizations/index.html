@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Online ADMM Experiment Visualizations</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Online ADMM Experiment Visualizations</h1>
+  <p>Generated from <code>results/summary.csv</code> and per-iteration history CSV files. Lower iteration counts and residuals are better; rho trajectory charts show how each controller moves the penalty during ADMM.</p>
+  <section><h2>Iterations By Problem</h2><img src="iterations_by_problem.svg" alt="iterations_by_problem"></section>
+<section><h2>Final Primal By Problem</h2><img src="final_primal_by_problem.svg" alt="final_primal_by_problem"></section>
+<section><h2>Final Dual By Problem</h2><img src="final_dual_by_problem.svg" alt="final_dual_by_problem"></section>
+<section><h2>Rho Changes By Problem</h2><img src="rho_changes_by_problem.svg" alt="rho_changes_by_problem"></section>
+<section><h2>Consensus Lasso Objective Seed0</h2><img src="consensus_lasso_objective_seed0.svg" alt="consensus_lasso_objective_seed0"></section>
+<section><h2>Consensus Lasso Primal Norm Seed0</h2><img src="consensus_lasso_primal_norm_seed0.svg" alt="consensus_lasso_primal_norm_seed0"></section>
+<section><h2>Consensus Lasso Dual Norm Seed0</h2><img src="consensus_lasso_dual_norm_seed0.svg" alt="consensus_lasso_dual_norm_seed0"></section>
+<section><h2>Consensus Lasso Rho Seed0</h2><img src="consensus_lasso_rho_seed0.svg" alt="consensus_lasso_rho_seed0"></section>
+<section><h2>Graphical Lasso Objective Seed0</h2><img src="graphical_lasso_objective_seed0.svg" alt="graphical_lasso_objective_seed0"></section>
+<section><h2>Graphical Lasso Primal Norm Seed0</h2><img src="graphical_lasso_primal_norm_seed0.svg" alt="graphical_lasso_primal_norm_seed0"></section>
+<section><h2>Graphical Lasso Dual Norm Seed0</h2><img src="graphical_lasso_dual_norm_seed0.svg" alt="graphical_lasso_dual_norm_seed0"></section>
+<section><h2>Graphical Lasso Rho Seed0</h2><img src="graphical_lasso_rho_seed0.svg" alt="graphical_lasso_rho_seed0"></section>
+<section><h2>Tv Denoising Objective Seed0</h2><img src="tv_denoising_objective_seed0.svg" alt="tv_denoising_objective_seed0"></section>
+<section><h2>Tv Denoising Primal Norm Seed0</h2><img src="tv_denoising_primal_norm_seed0.svg" alt="tv_denoising_primal_norm_seed0"></section>
+<section><h2>Tv Denoising Dual Norm Seed0</h2><img src="tv_denoising_dual_norm_seed0.svg" alt="tv_denoising_dual_norm_seed0"></section>
+<section><h2>Tv Denoising Rho Seed0</h2><img src="tv_denoising_rho_seed0.svg" alt="tv_denoising_rho_seed0"></section>
+  <section>
+    <h2>Grouped Metrics</h2>
+    <table>
+<thead><tr>
+<th>problem</th>
+<th>method</th>
+<th>iterations</th>
+<th>final_primal</th>
+<th>final_dual</th>
+<th>final_rho</th>
+<th>rho_changes</th>
+</tr></thead><tbody>
+<tr>
+<td>consensus_lasso</td>
+<td>fixed_rho_0.1</td>
+<td>150.00</td>
+<td>0.00149</td>
+<td>1.85e-06</td>
+<td>0.10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>consensus_lasso</td>
+<td>fixed_rho_1.0</td>
+<td>27.00</td>
+<td>8.18e-05</td>
+<td>2.2e-05</td>
+<td>1.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>consensus_lasso</td>
+<td>fixed_rho_10.0</td>
+<td>150.00</td>
+<td>2e-06</td>
+<td>0.00033</td>
+<td>10.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>consensus_lasso</td>
+<td>online_ogd</td>
+<td>24.67</td>
+<td>7.08e-05</td>
+<td>7.06e-05</td>
+<td>1.50</td>
+<td>24.67</td>
+</tr>
+<tr>
+<td>consensus_lasso</td>
+<td>online_ogd_epoch3</td>
+<td>26.00</td>
+<td>7.72e-05</td>
+<td>3.34e-05</td>
+<td>1.23</td>
+<td>8.33</td>
+</tr>
+<tr>
+<td>consensus_lasso</td>
+<td>residual_balance</td>
+<td>27.00</td>
+<td>8.18e-05</td>
+<td>2.2e-05</td>
+<td>1.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>fixed_rho_0.1</td>
+<td>150.00</td>
+<td>0.00265</td>
+<td>2.7e-06</td>
+<td>0.10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>fixed_rho_1.0</td>
+<td>36.67</td>
+<td>7.55e-05</td>
+<td>9.58e-05</td>
+<td>1.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>fixed_rho_10.0</td>
+<td>150.00</td>
+<td>7.79e-06</td>
+<td>0.0061</td>
+<td>10.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>online_ogd</td>
+<td>34.67</td>
+<td>8.44e-05</td>
+<td>8.64e-05</td>
+<td>1.72</td>
+<td>34.33</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>online_ogd_epoch3</td>
+<td>40.00</td>
+<td>8.69e-05</td>
+<td>1.84e-05</td>
+<td>1.00</td>
+<td>13.00</td>
+</tr>
+<tr>
+<td>graphical_lasso</td>
+<td>residual_balance</td>
+<td>36.67</td>
+<td>7.55e-05</td>
+<td>9.58e-05</td>
+<td>1.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>fixed_rho_0.1</td>
+<td>150.00</td>
+<td>0.04</td>
+<td>0.000152</td>
+<td>0.10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>fixed_rho_1.0</td>
+<td>130.33</td>
+<td>0.00021</td>
+<td>2.7e-05</td>
+<td>1.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>fixed_rho_10.0</td>
+<td>150.00</td>
+<td>5.94e-07</td>
+<td>0.000236</td>
+<td>10.00</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>online_ogd</td>
+<td>76.33</td>
+<td>9.35e-05</td>
+<td>7.64e-05</td>
+<td>2.30</td>
+<td>76.33</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>online_ogd_epoch3</td>
+<td>90.67</td>
+<td>9.34e-05</td>
+<td>6.24e-05</td>
+<td>2.14</td>
+<td>29.67</td>
+</tr>
+<tr>
+<td>tv_denoising</td>
+<td>residual_balance</td>
+<td>125.00</td>
+<td>0.000126</td>
+<td>2.95e-05</td>
+<td>1.33</td>
+<td>0.33</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>

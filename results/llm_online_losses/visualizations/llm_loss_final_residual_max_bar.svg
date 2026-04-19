@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="560" viewBox="0 0 1320 560" role="img" aria-label="LLM PTQ Max Residual">
+<title>LLM PTQ Max Residual</title>
+<rect width="1320" height="560" fill="#ffffff"/>
+<text x="82" y="28" font-size="20" font-family="Arial" font-weight="700">LLM PTQ Max Residual</text>
+<text x="18" y="258.0" transform="rotate(-90 18 258.0)" font-size="12" font-family="Arial">max residual</text>
+<line x1="82" x2="1296" y1="460.00" y2="460.00" stroke="#e5e7eb"/>
+<text x="74" y="464.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="82" x2="1296" y1="359.00" y2="359.00" stroke="#e5e7eb"/>
+<text x="74" y="363.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e0</text>
+<line x1="82" x2="1296" y1="258.00" y2="258.00" stroke="#e5e7eb"/>
+<text x="74" y="262.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e1</text>
+<line x1="82" x2="1296" y1="157.00" y2="157.00" stroke="#e5e7eb"/>
+<text x="74" y="161.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e1</text>
+<line x1="82" x2="1296" y1="56.00" y2="56.00" stroke="#e5e7eb"/>
+<text x="74" y="60.00" text-anchor="end" font-size="11" font-family="Arial" fill="#4b5563">1e2</text>
+<text x="689.00" y="506" text-anchor="middle" font-size="12" font-family="Arial">tiny llm ptq</text>
+<rect x="90.00" y="267.63" width="97.83" height="192.37" fill="#4e79a7"><title>tiny_llm_ptq / fixed_rho_0p1: 8.961</title></rect>
+<rect x="189.83" y="259.56" width="97.83" height="200.44" fill="#59a14f"><title>tiny_llm_ptq / fixed_rho_1: 9.824</title></rect>
+<rect x="289.67" y="167.01" width="97.83" height="292.99" fill="#e15759"><title>tiny_llm_ptq / fixed_rho_10: 28.21</title></rect>
+<rect x="389.50" y="280.36" width="97.83" height="179.64" fill="#b07aa1"><title>tiny_llm_ptq / online_ogd_balance: 7.75</title></rect>
+<rect x="489.33" y="270.01" width="97.83" height="189.99" fill="#76b7b2"><title>tiny_llm_ptq / online_ogd_norm_magnitude: 8.72</title></rect>
+<rect x="589.17" y="266.30" width="97.83" height="193.70" fill="#111827"><title>tiny_llm_ptq / online_ogd_sum_log_residuals: 9.097</title></rect>
+<rect x="689.00" y="258.32" width="97.83" height="201.68" fill="#2f8f6b"><title>tiny_llm_ptq / online_ogd_task_aware: 9.963</title></rect>
+<rect x="788.83" y="142.36" width="97.83" height="317.64" fill="#8c6d31"><title>tiny_llm_ptq / online_ogd_task_feas_aggressive: 37.37</title></rect>
+<rect x="888.67" y="182.22" width="97.83" height="277.78" fill="#6f63b6"><title>tiny_llm_ptq / online_ogd_task_feas_mid: 23.72</title></rect>
+<rect x="988.50" y="217.89" width="97.83" height="242.11" fill="#d37295"><title>tiny_llm_ptq / online_ogd_task_feasibility: 15.8</title></rect>
+<rect x="1088.33" y="269.91" width="97.83" height="190.09" fill="#9c755f"><title>tiny_llm_ptq / online_ogd_task_norm_mag_feas_high: 8.731</title></rect>
+<rect x="1188.17" y="270.05" width="97.83" height="189.95" fill="#f28e2b"><title>tiny_llm_ptq / online_ogd_task_norm_magnitude: 8.717</title></rect>
+<rect x="82" y="520" width="10" height="10" fill="#4e79a7"/>
+<text x="97" y="530" font-size="11" font-family="Arial">fixed_rho_0p1</text>
+<rect x="227" y="520" width="10" height="10" fill="#59a14f"/>
+<text x="242" y="530" font-size="11" font-family="Arial">fixed_rho_1</text>
+<rect x="372" y="520" width="10" height="10" fill="#e15759"/>
+<text x="387" y="530" font-size="11" font-family="Arial">fixed_rho_10</text>
+<rect x="517" y="520" width="10" height="10" fill="#b07aa1"/>
+<text x="532" y="530" font-size="11" font-family="Arial">online_ogd_balance</text>
+<rect x="662" y="520" width="10" height="10" fill="#76b7b2"/>
+<text x="677" y="530" font-size="11" font-family="Arial">online_ogd_norm_magnitude</text>
+<rect x="807" y="520" width="10" height="10" fill="#111827"/>
+<text x="822" y="530" font-size="11" font-family="Arial">online_ogd_sum_log_residuals</text>
+<rect x="952" y="520" width="10" height="10" fill="#2f8f6b"/>
+<text x="967" y="530" font-size="11" font-family="Arial">online_ogd_task_aware</text>
+<rect x="1097" y="520" width="10" height="10" fill="#8c6d31"/>
+<text x="1112" y="530" font-size="11" font-family="Arial">online_ogd_task_feas_aggressive</text>
+<rect x="1242" y="520" width="10" height="10" fill="#6f63b6"/>
+<text x="1257" y="530" font-size="11" font-family="Arial">online_ogd_task_feas_mid</text>
+<rect x="1387" y="520" width="10" height="10" fill="#d37295"/>
+<text x="1402" y="530" font-size="11" font-family="Arial">online_ogd_task_feasibility</text>
+<rect x="1532" y="520" width="10" height="10" fill="#9c755f"/>
+<text x="1547" y="530" font-size="11" font-family="Arial">online_ogd_task_norm_mag_feas_high</text>
+<rect x="1677" y="520" width="10" height="10" fill="#f28e2b"/>
+<text x="1692" y="530" font-size="11" font-family="Arial">online_ogd_task_norm_magnitude</text>
+</svg>

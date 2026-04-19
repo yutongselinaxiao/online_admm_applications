@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rho Robustness and Vector-Rho PTQ</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Rho Robustness and Vector-Rho PTQ</h1>
+  <p>Initial-rho sweeps for scalar online penalties and per-block vector-rho variants on synthetic LLM PTQ.</p>
+  <section><h2>Tanh Qat Nonconvex Task Metric Vs Rho0</h2><img src="tanh_qat_nonconvex_task_metric_vs_rho0.svg" alt="tanh_qat_nonconvex_task_metric_vs_rho0"></section>
+<section><h2>Tanh Qat Nonconvex Final Rho Vs Rho0</h2><img src="tanh_qat_nonconvex_final_rho_vs_rho0.svg" alt="tanh_qat_nonconvex_final_rho_vs_rho0"></section>
+<section><h2>Tiny Llm Ptq Task Metric Vs Rho0</h2><img src="tiny_llm_ptq_task_metric_vs_rho0.svg" alt="tiny_llm_ptq_task_metric_vs_rho0"></section>
+<section><h2>Tiny Llm Ptq Final Rho Vs Rho0</h2><img src="tiny_llm_ptq_final_rho_vs_rho0.svg" alt="tiny_llm_ptq_final_rho_vs_rho0"></section>
+<section><h2>Tiny Llm Ptq Vector Rho Task Metric Vs Rho0</h2><img src="tiny_llm_ptq_vector_rho_task_metric_vs_rho0.svg" alt="tiny_llm_ptq_vector_rho_task_metric_vs_rho0"></section>
+<section><h2>Tiny Llm Ptq Vector Rho Final Rho Vs Rho0</h2><img src="tiny_llm_ptq_vector_rho_final_rho_vs_rho0.svg" alt="tiny_llm_ptq_vector_rho_final_rho_vs_rho0"></section>
+  <section>
+    <h2>Robustness Summary</h2>
+    <table>
+<thead><tr>
+<th>problem</th>
+<th>base_method</th>
+<th>mean_task_metric</th>
+<th>best_task_metric</th>
+<th>worst_task_metric</th>
+<th>relative_range</th>
+<th>best_rho0</th>
+<th>worst_rho0</th>
+</tr></thead><tbody>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd</td>
+<td>0.319</td>
+<td>0.296</td>
+<td>0.367</td>
+<td>24.2%</td>
+<td>0.01</td>
+<td>100</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_task_aware</td>
+<td>0.328</td>
+<td>0.289</td>
+<td>0.404</td>
+<td>39.6%</td>
+<td>0.01</td>
+<td>100</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_task_feasibility</td>
+<td>0.376</td>
+<td>0.299</td>
+<td>0.462</td>
+<td>54.8%</td>
+<td>0.01</td>
+<td>100</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd</td>
+<td>0.352</td>
+<td>0.349</td>
+<td>0.354</td>
+<td>1.4%</td>
+<td>1</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_task_aware</td>
+<td>0.343</td>
+<td>0.339</td>
+<td>0.347</td>
+<td>2.3%</td>
+<td>0.01</td>
+<td>1</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_task_feasibility</td>
+<td>0.323</td>
+<td>0.316</td>
+<td>0.332</td>
+<td>5.1%</td>
+<td>1</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq_vector_rho</td>
+<td>vector_online_ogd</td>
+<td>0.35</td>
+<td>0.347</td>
+<td>0.354</td>
+<td>2.0%</td>
+<td>100</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq_vector_rho</td>
+<td>vector_task_aware</td>
+<td>0.344</td>
+<td>0.34</td>
+<td>0.348</td>
+<td>2.5%</td>
+<td>100</td>
+<td>1</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq_vector_rho</td>
+<td>vector_task_feasibility</td>
+<td>0.324</td>
+<td>0.317</td>
+<td>0.332</td>
+<td>4.4%</td>
+<td>100</td>
+<td>0.01</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>

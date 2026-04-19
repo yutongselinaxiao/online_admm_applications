@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>LLM Quantization Baselines</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>LLM Quantization Baselines</h1>
+  <p>Local proxy baselines for synthetic transformer-block PTQ: RTN, Hessian-aware clipping, GPTQ-like compensation, AWQ-like scaling, SmoothQuant-like scaling, and ADMM variants.</p>
+  <section><h2>Llm Quant Baseline Deploy Rel Error</h2><img src="llm_quant_baseline_deploy_rel_error.svg" alt="llm_quant_baseline_deploy_rel_error"></section>
+<section><h2>Llm Quant Baseline Weight Rel Error</h2><img src="llm_quant_baseline_weight_rel_error.svg" alt="llm_quant_baseline_weight_rel_error"></section>
+<section><h2>Llm Quant Baseline Final Primal</h2><img src="llm_quant_baseline_final_primal.svg" alt="llm_quant_baseline_final_primal"></section>
+<section><h2>Llm Quant Baseline Final Dual</h2><img src="llm_quant_baseline_final_dual.svg" alt="llm_quant_baseline_final_dual"></section>
+<section><h2>Llm Quant Baseline Final Rho</h2><img src="llm_quant_baseline_final_rho.svg" alt="llm_quant_baseline_final_rho"></section>
+  <section>
+    <h2>Grouped Metrics</h2>
+    <table>
+<thead><tr>
+<th>method</th>
+<th>family</th>
+<th>deploy_rel_error</th>
+<th>weight_rel_error</th>
+<th>final_primal</th>
+<th>final_dual</th>
+<th>final_rho</th>
+</tr></thead><tbody>
+<tr>
+<td>fp16_reference</td>
+<td>external_proxy</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>gptq_like_sequential</td>
+<td>external_proxy</td>
+<td>0.2049</td>
+<td>0.3431</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>hessian_diag_clip</td>
+<td>external_proxy</td>
+<td>0.222</td>
+<td>0.2291</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>awq_like_scale_grid</td>
+<td>external_proxy</td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>rtn_per_channel</td>
+<td>external_proxy</td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>smoothquant_like_scale_grid</td>
+<td>external_proxy</td>
+<td>0.252</td>
+<td>0.2547</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>admm_task_feas_aggressive</td>
+<td>admm</td>
+<td>0.2543</td>
+<td>0.2657</td>
+<td>1.075</td>
+<td>37.37</td>
+<td>29.42</td>
+</tr>
+<tr>
+<td>admm_fixed_rho_10</td>
+<td>admm</td>
+<td>0.2782</td>
+<td>0.2642</td>
+<td>2.187</td>
+<td>28.21</td>
+<td>10</td>
+</tr>
+<tr>
+<td>admm_task_feasibility</td>
+<td>admm</td>
+<td>0.3164</td>
+<td>0.286</td>
+<td>5.794</td>
+<td>15.8</td>
+<td>2.048</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>

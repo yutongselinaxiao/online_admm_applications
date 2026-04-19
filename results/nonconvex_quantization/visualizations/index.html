@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Nonconvex Online ADMM Quantization</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
+    main { max-width: 1480px; margin: 0 auto; padding: 28px 22px 44px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #4b5563; line-height: 1.45; }
+    section { margin: 24px 0; padding: 18px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    img { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th { background: #eef2f7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Nonconvex Online ADMM Quantization</h1>
+  <p>Experimental nonconvex and discrete-quantization ADMM examples: tanh-network quantized training and synthetic LLM-style blockwise PTQ.</p>
+  <section><h2>Nonconvex Iterations By Problem</h2><img src="nonconvex_iterations_by_problem.svg" alt="nonconvex_iterations_by_problem"></section>
+<section><h2>Nonconvex Task Metric By Problem</h2><img src="nonconvex_task_metric_by_problem.svg" alt="nonconvex_task_metric_by_problem"></section>
+<section><h2>Nonconvex Final Primal By Problem</h2><img src="nonconvex_final_primal_by_problem.svg" alt="nonconvex_final_primal_by_problem"></section>
+<section><h2>Nonconvex Final Dual By Problem</h2><img src="nonconvex_final_dual_by_problem.svg" alt="nonconvex_final_dual_by_problem"></section>
+<section><h2>Nonconvex Rho Changes By Problem</h2><img src="nonconvex_rho_changes_by_problem.svg" alt="nonconvex_rho_changes_by_problem"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Objective Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_objective_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_objective_seed0"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Deploy Loss Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_deploy_loss_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_deploy_loss_seed0"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Train Loss Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_train_loss_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_train_loss_seed0"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Primal Norm Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_primal_norm_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_primal_norm_seed0"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Dual Norm Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_dual_norm_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_dual_norm_seed0"></section>
+<section><h2>Nonconvex Tanh Qat Nonconvex Rho Seed0</h2><img src="nonconvex_tanh_qat_nonconvex_rho_seed0.svg" alt="nonconvex_tanh_qat_nonconvex_rho_seed0"></section>
+<section><h2>Nonconvex Tiny Llm Ptq Objective Seed0</h2><img src="nonconvex_tiny_llm_ptq_objective_seed0.svg" alt="nonconvex_tiny_llm_ptq_objective_seed0"></section>
+<section><h2>Nonconvex Tiny Llm Ptq Deploy Rel Error Seed0</h2><img src="nonconvex_tiny_llm_ptq_deploy_rel_error_seed0.svg" alt="nonconvex_tiny_llm_ptq_deploy_rel_error_seed0"></section>
+<section><h2>Nonconvex Tiny Llm Ptq Primal Norm Seed0</h2><img src="nonconvex_tiny_llm_ptq_primal_norm_seed0.svg" alt="nonconvex_tiny_llm_ptq_primal_norm_seed0"></section>
+<section><h2>Nonconvex Tiny Llm Ptq Dual Norm Seed0</h2><img src="nonconvex_tiny_llm_ptq_dual_norm_seed0.svg" alt="nonconvex_tiny_llm_ptq_dual_norm_seed0"></section>
+<section><h2>Nonconvex Tiny Llm Ptq Rho Seed0</h2><img src="nonconvex_tiny_llm_ptq_rho_seed0.svg" alt="nonconvex_tiny_llm_ptq_rho_seed0"></section>
+  <section>
+    <h2>Grouped Metrics</h2>
+    <table>
+<thead><tr>
+<th>problem</th>
+<th>method</th>
+<th>iterations</th>
+<th>task_metric</th>
+<th>final_primal</th>
+<th>final_dual</th>
+<th>final_rho</th>
+<th>rho_changes</th>
+<th>wall_time_sec</th>
+</tr></thead><tbody>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>fixed_rho_0p1</td>
+<td>100.00</td>
+<td>0.29</td>
+<td>0.48</td>
+<td>0.08</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.38</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>fixed_rho_1</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>0.31</td>
+<td>0.54</td>
+<td>1.00</td>
+<td>0</td>
+<td>0.31</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>fixed_rho_10</td>
+<td>100.00</td>
+<td>0.50</td>
+<td>0.000367</td>
+<td>0.07</td>
+<td>10.00</td>
+<td>0</td>
+<td>0.37</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd</td>
+<td>100.00</td>
+<td>0.31</td>
+<td>0.36</td>
+<td>0.37</td>
+<td>0.59</td>
+<td>96.00</td>
+<td>0.49</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_epoch5</td>
+<td>100.00</td>
+<td>0.33</td>
+<td>0.34</td>
+<td>0.44</td>
+<td>0.75</td>
+<td>20.00</td>
+<td>0.56</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_freeze50</td>
+<td>100.00</td>
+<td>0.31</td>
+<td>0.36</td>
+<td>0.38</td>
+<td>0.61</td>
+<td>48.00</td>
+<td>0.39</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_no_dual_rescale</td>
+<td>100.00</td>
+<td>0.31</td>
+<td>0.36</td>
+<td>0.36</td>
+<td>0.58</td>
+<td>98.00</td>
+<td>0.29</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_task_accept</td>
+<td>100.00</td>
+<td>0.30</td>
+<td>0.47</td>
+<td>0.10</td>
+<td>0.14</td>
+<td>100.00</td>
+<td>0.62</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_task_aware</td>
+<td>100.00</td>
+<td>0.31</td>
+<td>0.37</td>
+<td>0.37</td>
+<td>0.62</td>
+<td>100.00</td>
+<td>0.27</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>online_ogd_task_feasibility</td>
+<td>100.00</td>
+<td>0.38</td>
+<td>0.25</td>
+<td>0.60</td>
+<td>1.39</td>
+<td>100.00</td>
+<td>0.34</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>residual_balance_normalized</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>0.31</td>
+<td>0.54</td>
+<td>1.00</td>
+<td>0</td>
+<td>0.60</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>residual_balance_raw</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>0.31</td>
+<td>0.54</td>
+<td>1.00</td>
+<td>0</td>
+<td>0.47</td>
+</tr>
+<tr>
+<td>tanh_qat_nonconvex</td>
+<td>residual_balance_relative</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>0.31</td>
+<td>0.54</td>
+<td>1.00</td>
+<td>0</td>
+<td>0.29</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>fixed_rho_0p1</td>
+<td>100.00</td>
+<td>0.36</td>
+<td>8.96</td>
+<td>1.41</td>
+<td>0.10</td>
+<td>0</td>
+<td>1.52</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>fixed_rho_1</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>7.07</td>
+<td>9.82</td>
+<td>1.00</td>
+<td>0</td>
+<td>1.58</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>fixed_rho_10</td>
+<td>100.00</td>
+<td>0.28</td>
+<td>2.19</td>
+<td>28.21</td>
+<td>10.00</td>
+<td>0</td>
+<td>1.59</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd</td>
+<td>100.00</td>
+<td>0.35</td>
+<td>7.64</td>
+<td>7.75</td>
+<td>0.72</td>
+<td>100.00</td>
+<td>3.44</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_epoch5</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>7.31</td>
+<td>8.73</td>
+<td>0.85</td>
+<td>20.00</td>
+<td>1.66</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_freeze50</td>
+<td>100.00</td>
+<td>0.35</td>
+<td>7.48</td>
+<td>8.22</td>
+<td>0.78</td>
+<td>50.00</td>
+<td>1.51</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_no_dual_rescale</td>
+<td>100.00</td>
+<td>0.35</td>
+<td>7.63</td>
+<td>7.71</td>
+<td>0.72</td>
+<td>100.00</td>
+<td>1.35</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_task_accept</td>
+<td>100.00</td>
+<td>0.39</td>
+<td>9.24</td>
+<td>0.09</td>
+<td>0.00589</td>
+<td>100.00</td>
+<td>1.34</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_task_aware</td>
+<td>100.00</td>
+<td>0.35</td>
+<td>7.20</td>
+<td>9.96</td>
+<td>1.00</td>
+<td>100.00</td>
+<td>1.83</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>online_ogd_task_feasibility</td>
+<td>100.00</td>
+<td>0.32</td>
+<td>5.79</td>
+<td>15.80</td>
+<td>2.05</td>
+<td>99.67</td>
+<td>1.43</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>residual_balance_normalized</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>7.07</td>
+<td>9.82</td>
+<td>1.00</td>
+<td>0</td>
+<td>1.67</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>residual_balance_raw</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>7.07</td>
+<td>9.82</td>
+<td>1.00</td>
+<td>0</td>
+<td>1.64</td>
+</tr>
+<tr>
+<td>tiny_llm_ptq</td>
+<td>residual_balance_relative</td>
+<td>100.00</td>
+<td>0.34</td>
+<td>7.07</td>
+<td>9.82</td>
+<td>1.00</td>
+<td>0</td>
+<td>1.79</td>
+</tr>
+</tbody></table>
+  </section>
+</main>
+</body>
+</html>
