@@ -1,0 +1,3 @@
+model,corpus,device,seed,method,admm_controller,admm_rho0,bits,loss,ppl,delta_loss,delta_ppl,eval_tokens,num_quantized_modules,mean_module_recon_error,median_module_recon_error,max_module_recon_error,mean_final_primal,mean_final_dual,mean_final_rho,quantize_wall_time_sec,eval_wall_time_sec
+gpt2,wikitext2,cuda,2,fp32,,,,3.3676271207870974,29.009609024820953,0.0,0.0,285696,0,0.0,0.0,0.0,0.0,0.0,0.0,3.3099204301834106e-06,5.567002362571657
+gpt2,wikitext2,cuda,2,admm_gptq,task_feasibility,0.01,4,7.615065750682653,2028.5281315063971,4.247438629895556,1999.5185224815762,285696,49,0.14637903978811606,0.09644441842282325,0.4014246702231691,2.081471523074359,1.1637083988566812,0.5992513774810361,207.9047817857936,5.549534538760781

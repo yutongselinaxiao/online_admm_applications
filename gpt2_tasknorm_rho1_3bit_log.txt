@@ -1,0 +1,23 @@
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 9577.96it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Token indices sequence length is longer than the specified maximum sequence length for this model (2415650 > 1024). Running this sequence through the model will result in indexing errors
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+[gpt2] clamping --block-size 2048 -> 1024 (model max context)
+[gpt2] fp32 ppl=29.010 loss=3.3676 on 285696 tokens
+[seed=0] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=0 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=3] admm_gptq    rho0=1 ppl=485165195.410 Δ=+485165166.400 recon=0.3500 rho_final=0.067 t_quant=210.1s
+[seed=1] calibrated 49 modules on 6422528 tokens in 4.4s
+[seed=1 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=3] admm_gptq    rho0=1 ppl=195517969.559 Δ=+195517940.550 recon=0.3507 rho_final=0.068 t_quant=211.2s
+[seed=2] calibrated 49 modules on 6422528 tokens in 2.3s
+[seed=2 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=3] admm_gptq    rho0=1 ppl=69049194.506 Δ=+69049165.496 recon=0.3500 rho_final=0.068 t_quant=221.0s
+[seed=3] calibrated 49 modules on 6422528 tokens in 4.4s
+[seed=3 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=3] admm_gptq    rho0=1 ppl=485165195.410 Δ=+485165166.400 recon=0.3509 rho_final=0.067 t_quant=218.7s
+[seed=4] calibrated 49 modules on 6422528 tokens in 4.4s
+[seed=4 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=3] admm_gptq    rho0=1 ppl=485165195.410 Δ=+485165166.400 recon=0.3508 rho_final=0.068 t_quant=221.0s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/gpt2_tasknorm_rho1_3bit

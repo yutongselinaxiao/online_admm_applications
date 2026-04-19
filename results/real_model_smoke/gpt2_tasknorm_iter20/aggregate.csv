@@ -1,0 +1,3 @@
+model,corpus,method,admm_controller,admm_rho0,bits,seeds,ppl_mean,ppl_std,delta_ppl_mean,recon_mean,rho_mean
+gpt2,wikitext2,admm_gptq,task_norm_magnitude,1.0,4,5,298.77045117992014,53.66037723930998,269.76084215509917,0.16288869539839718,0.27349250997652963
+gpt2,wikitext2,fp32,,,,5,29.009609024820953,0.0,0.0,0.0,0.0

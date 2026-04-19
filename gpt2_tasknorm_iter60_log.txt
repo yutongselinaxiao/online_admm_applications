@@ -1,0 +1,23 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 4572.32it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (2415650 > 1024). Running this sequence through the model will result in indexing errors
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+[gpt2] clamping --block-size 2048 -> 1024 (model max context)
+[gpt2] fp32 ppl=29.010 loss=3.3676 on 285696 tokens
+[seed=0] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=0 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=4] admm_gptq    rho0=1 ppl=8638.706 Δ=+8609.696 recon=0.1752 rho_final=0.273 t_quant=370.7s
+[seed=1] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=1 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=4] admm_gptq    rho0=1 ppl=7652.106 Δ=+7623.096 recon=0.1747 rho_final=0.281 t_quant=421.2s
+[seed=2] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=2 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=4] admm_gptq    rho0=1 ppl=11107.140 Δ=+11078.130 recon=0.1760 rho_final=0.276 t_quant=487.6s
+[seed=3] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=3 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=4] admm_gptq    rho0=1 ppl=11335.709 Δ=+11306.700 recon=0.1752 rho_final=0.274 t_quant=513.5s
+[seed=4] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=4 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=4] admm_gptq    rho0=1 ppl=12039.625 Δ=+12010.616 recon=0.1747 rho_final=0.275 t_quant=547.6s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/gpt2_tasknorm_iter60

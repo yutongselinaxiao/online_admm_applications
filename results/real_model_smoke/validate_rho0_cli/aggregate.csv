@@ -1,0 +1,4 @@
+model,corpus,method,admm_controller,admm_rho0,bits,seeds,ppl_mean,ppl_std,delta_ppl_mean,recon_mean,rho_mean
+random_tiny_gpt2,toy,admm_gptq,task_feasibility,0.1,4,1,128.95982026231192,0.0,0.12126830836925251,0.0883246034797634,0.14558279632543653
+random_tiny_gpt2,toy,admm_gptq,task_feasibility,1.0,4,1,128.96603118812737,0.0,0.12747923418470464,0.09601684767506316,1.1729046368928757
+random_tiny_gpt2,toy,fp32,,,,1,128.83855195394267,0.0,0.0,0.0,0.0

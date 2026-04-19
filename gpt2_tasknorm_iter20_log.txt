@@ -1,0 +1,23 @@
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 10709.35it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Token indices sequence length is longer than the specified maximum sequence length for this model (2415650 > 1024). Running this sequence through the model will result in indexing errors
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+[gpt2] clamping --block-size 2048 -> 1024 (model max context)
+[gpt2] fp32 ppl=29.010 loss=3.3676 on 285696 tokens
+[seed=0] calibrated 49 modules on 6422528 tokens in 4.1s
+[seed=0 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=4] admm_gptq    rho0=1 ppl=363.857 Δ=+334.847 recon=0.1628 rho_final=0.272 t_quant=144.5s
+[seed=1] calibrated 49 modules on 6422528 tokens in 4.5s
+[seed=1 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=4] admm_gptq    rho0=1 ppl=223.748 Δ=+194.739 recon=0.1625 rho_final=0.273 t_quant=147.9s
+[seed=2] calibrated 49 modules on 6422528 tokens in 4.1s
+[seed=2 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=4] admm_gptq    rho0=1 ppl=285.135 Δ=+256.126 recon=0.1631 rho_final=0.273 t_quant=148.5s
+[seed=3] calibrated 49 modules on 6422528 tokens in 4.0s
+[seed=3 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=4] admm_gptq    rho0=1 ppl=265.451 Δ=+236.442 recon=0.1629 rho_final=0.275 t_quant=145.3s
+[seed=4] calibrated 49 modules on 6422528 tokens in 4.4s
+[seed=4 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=4] admm_gptq    rho0=1 ppl=355.661 Δ=+326.651 recon=0.1631 rho_final=0.274 t_quant=133.9s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/gpt2_tasknorm_iter20

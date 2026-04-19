@@ -109,6 +109,53 @@ for ctrl in task_feasibility bal_ogd heuristic spectral task_norm_magnitude fixe
 done
 ```
 
+### Current best GPT-2 ADMM setting
+
+The strongest GPT-2 ADMM result so far is 4-bit `admm_gptq` with
+`task_norm_magnitude`, `rho0=1`, and 20 ADMM iterations.  On five seeds it
+reached mean WikiText-2 perplexity `298.8`, slightly better than the local
+`gptq_proxy` mean `313.8`; 60 iterations over-iterated badly.
+
+This setting did not transfer as a win to `facebook/opt-125m`: on three seeds,
+`admm_gptq` reached mean PPL `85.5`, behind `awq_proxy` at `49.8` and
+`gptq_proxy` at `61.2`. Treat the GPT-2 setting as the current best candidate,
+not as a model-agnostic default.
+
+```bash
+HF_HOME=/data/yutong/hf_cache \
+/data/yutong/envs/jaxgpu/bin/python run_real_model_smoke.py \
+  --model gpt2 --corpus wikitext2 \
+  --seeds 0 1 2 3 4 --bits-list 4 \
+  --max-admm-iter 20 --calib-seqs 128 --block-size 2048 \
+  --methods fp32 admm_gptq \
+  --admm-controller task_norm_magnitude \
+  --admm-rho0-list 1 \
+  --cache-dir /data/yutong/hf_cache \
+  --output-subdir gpt2_tasknorm_iter20
+```
+
+### Initial-rho robustness
+
+After a full all-method run, isolate `admm_gptq` and sweep the initial penalty.
+Start with one seed; expand to three or five seeds only if at least one
+initialization improves perplexity or reconstruction error.
+
+```bash
+HF_HOME=/data/yutong/hf_cache \
+/data/yutong/envs/jaxgpu/bin/python run_real_model_smoke.py \
+  --model gpt2 --corpus wikitext2 \
+  --seeds 0 --bits-list 4 \
+  --max-admm-iter 30 --calib-seqs 128 --block-size 2048 \
+  --methods fp32 admm_gptq \
+  --admm-rho0-list 0.01 0.1 1 10 100 \
+  --cache-dir /data/yutong/hf_cache \
+  --output-subdir gpt2_rho0_sweep_seed0
+```
+
+For the `/dataMeR2` environment used on the H100 node, replace the environment
+and cache paths with `/dataMeR2/yutong/envs/myenv/bin/python` and
+`/dataMeR2/yutong/hf_cache`.
+
 ### Quick sanity before a long run
 
 ```bash

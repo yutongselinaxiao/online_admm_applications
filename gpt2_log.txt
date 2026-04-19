@@ -1,0 +1,63 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 7268.14it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (2415650 > 1024). Running this sequence through the model will result in indexing errors
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+[gpt2] clamping --block-size 2048 -> 1024 (model max context)
+[gpt2] fp32 ppl=29.010 loss=3.3676 on 285696 tokens
+[seed=0] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=0 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=3] rtn          ppl=485165195.410 Δ=+485165166.400 recon=0.3923 rho_final=0.000 t_quant=0.7s
+[seed=0 bits=3] gptq_proxy   ppl=10933085.354 Δ=+10933056.344 recon=0.3023 rho_final=0.000 t_quant=5.8s
+[seed=0 bits=3] awq_proxy    ppl=97627.693 Δ=+97598.684 recon=0.3616 rho_final=0.000 t_quant=1.3s
+[seed=0 bits=3] admm_gptq    ppl=87855551.656 Δ=+87855522.646 recon=0.4581 rho_final=5.582 t_quant=168.7s
+[seed=0 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=4] rtn          ppl=463007.393 Δ=+462978.384 recon=0.1768 rho_final=0.000 t_quant=0.7s
+[seed=0 bits=4] gptq_proxy   ppl=292.137 Δ=+263.127 recon=0.1327 rho_final=0.000 t_quant=5.7s
+[seed=0 bits=4] awq_proxy    ppl=561.295 Δ=+532.286 recon=0.1608 rho_final=0.000 t_quant=1.3s
+[seed=0 bits=4] admm_gptq    ppl=7372.980 Δ=+7343.971 recon=0.1761 rho_final=3.989 t_quant=168.9s
+[seed=1] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=1 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=3] rtn          ppl=485165195.410 Δ=+485165166.400 recon=0.3924 rho_final=0.000 t_quant=0.6s
+[seed=1 bits=3] gptq_proxy   ppl=1273290.173 Δ=+1273261.164 recon=0.3027 rho_final=0.000 t_quant=5.7s
+[seed=1 bits=3] awq_proxy    ppl=223565.618 Δ=+223536.608 recon=0.3615 rho_final=0.000 t_quant=1.3s
+[seed=1 bits=3] admm_gptq    ppl=5211308.897 Δ=+5211279.887 recon=0.4570 rho_final=5.510 t_quant=167.7s
+[seed=1 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=4] rtn          ppl=463007.393 Δ=+462978.384 recon=0.1767 rho_final=0.000 t_quant=0.6s
+[seed=1 bits=4] gptq_proxy   ppl=341.901 Δ=+312.891 recon=0.1340 rho_final=0.000 t_quant=5.7s
+[seed=1 bits=4] awq_proxy    ppl=236.445 Δ=+207.436 recon=0.1608 rho_final=0.000 t_quant=1.3s
+[seed=1 bits=4] admm_gptq    ppl=722.381 Δ=+693.371 recon=0.1759 rho_final=3.884 t_quant=168.5s
+[seed=2] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=2 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=3] rtn          ppl=485165195.410 Δ=+485165166.400 recon=0.3924 rho_final=0.000 t_quant=0.6s
+[seed=2 bits=3] gptq_proxy   ppl=1320842.619 Δ=+1320813.610 recon=0.3020 rho_final=0.000 t_quant=5.6s
+[seed=2 bits=3] awq_proxy    ppl=135310.771 Δ=+135281.762 recon=0.3616 rho_final=0.000 t_quant=1.3s
+[seed=2 bits=3] admm_gptq    ppl=485165195.410 Δ=+485165166.400 recon=0.4571 rho_final=5.615 t_quant=170.3s
+[seed=2 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=4] rtn          ppl=463007.393 Δ=+462978.384 recon=0.1767 rho_final=0.000 t_quant=0.6s
+[seed=2 bits=4] gptq_proxy   ppl=312.887 Δ=+283.878 recon=0.1340 rho_final=0.000 t_quant=5.8s
+[seed=2 bits=4] awq_proxy    ppl=693.883 Δ=+664.874 recon=0.1610 rho_final=0.000 t_quant=1.3s
+[seed=2 bits=4] admm_gptq    ppl=4977.784 Δ=+4948.774 recon=0.1761 rho_final=3.930 t_quant=168.1s
+[seed=3] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=3 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=3] rtn          ppl=485165195.410 Δ=+485165166.400 recon=0.3924 rho_final=0.000 t_quant=0.7s
+[seed=3 bits=3] gptq_proxy   ppl=2097881.784 Δ=+2097852.775 recon=0.3023 rho_final=0.000 t_quant=5.8s
+[seed=3 bits=3] awq_proxy    ppl=150203.678 Δ=+150174.668 recon=0.3617 rho_final=0.000 t_quant=1.3s
+[seed=3 bits=3] admm_gptq    ppl=145418682.539 Δ=+145418653.530 recon=0.4570 rho_final=5.574 t_quant=168.5s
+[seed=3 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=4] rtn          ppl=463007.393 Δ=+462978.384 recon=0.1767 rho_final=0.000 t_quant=0.6s
+[seed=3 bits=4] gptq_proxy   ppl=312.695 Δ=+283.686 recon=0.1340 rho_final=0.000 t_quant=5.7s
+[seed=3 bits=4] awq_proxy    ppl=215.390 Δ=+186.380 recon=0.1609 rho_final=0.000 t_quant=1.3s
+[seed=3 bits=4] admm_gptq    ppl=403.985 Δ=+374.975 recon=0.1762 rho_final=3.963 t_quant=168.2s
+[seed=4] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=4 bits=3] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=3] rtn          ppl=485165195.410 Δ=+485165166.400 recon=0.3929 rho_final=0.000 t_quant=0.6s
+[seed=4 bits=3] gptq_proxy   ppl=422464.735 Δ=+422435.725 recon=0.3030 rho_final=0.000 t_quant=5.8s
+[seed=4 bits=3] awq_proxy    ppl=180928.760 Δ=+180899.750 recon=0.3619 rho_final=0.000 t_quant=1.2s
+[seed=4 bits=3] admm_gptq    ppl=485165195.410 Δ=+485165166.400 recon=0.4486 rho_final=5.538 t_quant=168.0s
+[seed=4 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=4] rtn          ppl=463007.393 Δ=+462978.384 recon=0.1768 rho_final=0.000 t_quant=0.6s
+[seed=4 bits=4] gptq_proxy   ppl=309.312 Δ=+280.303 recon=0.1332 rho_final=0.000 t_quant=5.6s
+[seed=4 bits=4] awq_proxy    ppl=223.345 Δ=+194.336 recon=0.1608 rho_final=0.000 t_quant=1.3s
+[seed=4 bits=4] admm_gptq    ppl=775.119 Δ=+746.109 recon=0.1763 rho_final=3.942 t_quant=168.5s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/gpt2_paper_grade

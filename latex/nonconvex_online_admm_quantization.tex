@@ -722,6 +722,283 @@ should therefore be:
 The remaining gap to GPTQ-like PTQ is small enough to justify a real-model
 perplexity experiment.
 
+\subsection{Real-Model GPT-2 WikiText-2 Smoke-to-Paper Run}
+
+The first multi-seed real-model run used \texttt{run\_real\_model\_smoke.py}
+on GPT-2 with WikiText-2, five seeds, all supported projection modules, and
+\(b\in\{3,4\}\).  The command used 128 calibration sequences, a requested
+block size of 2048, and 30 ADMM iterations.  Since GPT-2 has maximum context
+1024, the script clamped the evaluation block size to 1024.  The full-precision
+baseline was healthy: perplexity \(29.010\) on 285696 evaluation tokens.
+
+\begin{table}[h]
+\centering
+\caption{Real GPT-2 WikiText-2 PTQ run, averaged over five seeds.  Lower
+perplexity and reconstruction error are better.}
+\label{tab:gpt2-real-ptq}
+\begin{tabular}{lcccc}
+\toprule
+Method & Bits & PPL mean & PPL std & Mean recon. error\\
+\midrule
+\texttt{fp32} & -- & \textbf{29.0} & 0.0 & 0.000\\
+\texttt{gptq\_proxy} & 4 & \textbf{313.8} & 16.0 & \textbf{0.134}\\
+\texttt{awq\_proxy} & 4 & 386.1 & 201.7 & 0.161\\
+\texttt{admm\_gptq} & 4 & 2850.4 & 2821.3 & 0.176\\
+\texttt{rtn} & 4 & 463007.4 & 0.0 & 0.177\\
+\midrule
+\texttt{awq\_proxy} & 3 & \textbf{1.58e5} & 4.25e4 & 0.362\\
+\texttt{gptq\_proxy} & 3 & 3.21e6 & 3.90e6 & \textbf{0.302}\\
+\texttt{admm\_gptq} & 3 & 2.42e8 & 2.04e8 & 0.456\\
+\texttt{rtn} & 3 & 4.85e8 & 0.0 & 0.393\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This result is a useful negative transfer check.  The synthetic curvature-aware
+ADMM experiment suggested that a GPTQ-like \(Z\)-update plus online penalty
+tuning could approach GPTQ-like PTQ.  On real GPT-2 perplexity, the current
+\texttt{admm\_gptq} implementation is instead close to RTN in reconstruction
+error at 4-bit and much worse than both GPTQ-like and AWQ-like proxy baselines
+in perplexity.  At 3-bit all methods degrade substantially, but
+\texttt{admm\_gptq} collapses more severely than the calibrated standalone
+proxies.
+
+The per-module diagnostics indicate that the 4-bit gap is concentrated in
+projection modules such as \texttt{mlp.c\_proj} and \texttt{attn.c\_proj}.
+This suggests that the current ADMM coupling either pulls the quantized
+\(Z\)-iterate too far from the standalone GPTQ target, or that the
+task-feasibility controller drives \(\rho\) to a regime that improves ADMM
+residuals without improving deploy loss.  The real-model evidence therefore
+weakens a theorem story based only on bounded online penalty paths.  Before
+claiming a deploy benefit, the method needs a rho/controller robustness sweep
+and a layerwise ablation showing when the ADMM wrapper improves over simply
+using the calibrated \(Z\)-projection once.
+
+\paragraph{Immediate real-model robustness tests.}
+The next GPT-2 experiments should hold the calibration and evaluation setup
+fixed and vary only the ADMM penalty mechanism:
+\begin{enumerate}
+    \item Sweep \(\rho_0\in\{10^{-2},10^{-1},1,10,10^2\}\) for
+          \texttt{admm\_gptq} at 4-bit, first on one seed and then on three
+          seeds if the result is promising.
+    \item Compare \texttt{task\_feasibility}, \texttt{bal\_ogd},
+          \texttt{heuristic}, \texttt{spectral},
+          \texttt{task\_norm\_magnitude}, and \texttt{fixed} controllers using
+          \texttt{--methods fp32 admm\_gptq}.
+    \item Add a direct ``single GPTQ \(Z\)-projection'' ablation inside the
+          ADMM code path to verify whether repeated ADMM iterations improve or
+          degrade the calibrated projection.
+    \item Report per-layer reconstruction gaps against \texttt{gptq\_proxy},
+          especially for \texttt{mlp.c\_proj} and \texttt{attn.c\_proj}.
+\end{enumerate}
+
+\paragraph{Initial-\(\rho\) robustness result.}
+The first real-model rho sweep was run on GPT-2, WikiText-2, seed 0, 4-bit,
+with the same calibration and evaluation setup as Table
+\ref{tab:gpt2-real-ptq}.  It swept
+\(\rho_0\in\{10^{-2},10^{-1},1,10,10^2\}\) for \texttt{admm\_gptq} using the
+\texttt{task\_feasibility} controller.  Table
+\ref{tab:gpt2-rho0-sweep} compares the sweep against the seed-0 calibrated
+baselines from the multi-method run.
+
+\begin{table}[h]
+\centering
+\caption{GPT-2 WikiText-2 4-bit initial-\(\rho\) sweep, seed 0.}
+\label{tab:gpt2-rho0-sweep}
+\begin{tabular}{lcccc}
+\toprule
+Method & \(\rho_0\) & PPL & Mean recon. error & Final \(\rho\)\\
+\midrule
+\texttt{fp32} & -- & 29.0 & 0.000 & --\\
+\texttt{admm\_gptq} & \(10^{-2}\) & \textbf{275.0} & 0.146 & 0.600\\
+\texttt{gptq\_proxy} & -- & 292.1 & \textbf{0.133} & --\\
+\texttt{awq\_proxy} & -- & 561.3 & 0.161 & --\\
+\texttt{admm\_gptq} & \(10^{-1}\) & 910.8 & 0.179 & 2.192\\
+\texttt{admm\_gptq} & \(1\) & 7373.0 & 0.176 & 3.989\\
+\texttt{admm\_gptq} & \(10\) & 1300.6 & 0.176 & 5.423\\
+\texttt{admm\_gptq} & \(10^2\) & 1175.9 & 0.175 & 7.083\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This is the first real-model setting where the ADMM wrapper beats the local
+GPTQ-like proxy in perplexity.  The improvement does not come from uniformly
+lower reconstruction error: \texttt{gptq\_proxy} still has lower mean
+calibration reconstruction error.  Instead, the low-\(\rho_0\) ADMM run appears
+to change the layerwise error allocation.  It improves many \texttt{c\_attn}
+and \texttt{mlp.c\_fc} modules relative to \texttt{gptq\_proxy}, while still
+lagging on difficult \texttt{mlp.c\_proj} and \texttt{attn.c\_proj} modules.
+
+The robustness conclusion is mixed.  The online controller is not yet
+initialization-invariant in deploy performance: \(\rho_0=10^{-2}\) is far
+better than \(\rho_0=1\), even though both use the same online update.  Thus,
+the current evidence supports a narrower claim:
+\[
+    \text{there exists a low-}\rho\text{ ADMM regime that is competitive with
+    GPTQ-like PTQ,}
+\]
+but it does not yet support the stronger claim that the online controller
+automatically finds that regime from arbitrary starts.  The next robustness
+test should therefore repeat \(\rho_0=10^{-2}\) over seeds \(1,\ldots,4\), and
+then test whether controller variants can reach the same regime from
+\(\rho_0=1\).
+
+\paragraph{Low-\(\rho\) multi-seed and controller ablation.}
+Repeating the low-\(\rho\) setting \(\rho_0=10^{-2}\) for seeds \(1,\ldots,4\)
+confirmed that the controller reliably ends near \(\rho\approx 0.60\), with
+mean reconstruction error about \(0.146\).  However, perplexity still varies
+substantially by calibration seed.  Across seeds \(0,\ldots,4\), the low-rho
+ADMM run has mean perplexity \(974.5\) with standard deviation \(856.8\).  This
+is a large improvement over the original \(\rho_0=1\) \texttt{admm\_gptq}
+mean perplexity \(2850.4\), but it does not yet match the stability of
+\texttt{gptq\_proxy}, whose mean perplexity is \(313.8\) with standard
+deviation \(16.0\).
+
+\begin{table}[h]
+\centering
+\caption{GPT-2 WikiText-2 4-bit low-rho ADMM, seeds \(0,\ldots,4\).}
+\label{tab:gpt2-low-rho-multiseed}
+\begin{tabular}{lcccc}
+\toprule
+Method & PPL mean & PPL std & Mean recon. error & Final \(\rho\)\\
+\midrule
+\texttt{gptq\_proxy} & \textbf{313.8} & \textbf{16.0} & \textbf{0.134} & --\\
+\texttt{awq\_proxy} & 386.1 & 201.7 & 0.161 & --\\
+\texttt{admm\_gptq}, \(\rho_0=10^{-2}\) & 974.5 & 856.8 & 0.146 & 0.601\\
+\texttt{admm\_gptq}, \(\rho_0=1\) & 2850.4 & 2821.3 & 0.176 & 3.941\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A controller ablation at seed 0 and \(\rho_0=1\) shows that the controller
+choice matters as much as the initial penalty.  The task-normalized magnitude
+controller moves the final penalty down to \(0.268\) and reaches perplexity
+\(583.0\), while task-feasibility moves the penalty up to \(3.989\) and reaches
+perplexity \(7373.0\).  Fixed, heuristic, and spectral controllers remain near
+\(\rho=1\) and give identical results in this run.
+
+\begin{table}[h]
+\centering
+\caption{GPT-2 WikiText-2 4-bit controller ablation, seed 0, \(\rho_0=1\).}
+\label{tab:gpt2-controller-ablation}
+\begin{tabular}{lccc}
+\toprule
+Controller & PPL & Mean recon. error & Final \(\rho\)\\
+\midrule
+\texttt{task\_norm\_magnitude} & \textbf{583.0} & \textbf{0.161} & 0.268\\
+\texttt{fixed} & 2413.4 & 0.178 & 1.000\\
+\texttt{heuristic} & 2413.4 & 0.178 & 1.000\\
+\texttt{spectral} & 2413.4 & 0.178 & 1.000\\
+\texttt{bal\_ogd} & 3326.3 & 0.177 & 1.133\\
+\texttt{task\_feasibility} & 7373.0 & 0.176 & 3.989\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The current interpretation is therefore: low-rho ADMM can be competitive on
+individual seeds, but the present online controller family does not yet produce
+a seed-stable deploy metric.  The next algorithmic target is not merely
+bounded path length of \(\rho_k\); it is a controller that keeps the penalty in
+the low-rho curvature-preserving regime while also reducing seed-to-seed
+perplexity variance.
+
+\paragraph{Iteration sweep and current best setting.}
+The task-normalized controller was then swept over ADMM iteration counts at
+4-bit.  This produced the strongest real-model result so far.  With 20 ADMM
+iterations, \texttt{admm\_gptq} reaches mean perplexity \(298.8\), slightly
+better than the \texttt{gptq\_proxy} mean \(313.8\), although its calibration
+reconstruction error remains worse.  The iteration count is important:
+10 iterations is competitive but not best, 30 iterations degrades relative to
+20, and 60 iterations catastrophically over-iterates.
+
+\begin{table}[h]
+\centering
+\caption{GPT-2 WikiText-2 4-bit task-normalized ADMM iteration sweep,
+seeds \(0,\ldots,4\).}
+\label{tab:gpt2-tasknorm-iter-sweep}
+\begin{tabular}{lcccc}
+\toprule
+Method & Iterations & PPL mean & PPL std & Mean recon. error\\
+\midrule
+\texttt{admm\_gptq}, task-normalized & 20 & \textbf{298.8} & 53.7 & 0.163\\
+\texttt{gptq\_proxy} & -- & 313.8 & \textbf{16.0} & \textbf{0.134}\\
+\texttt{admm\_gptq}, task-normalized & 10 & 373.9 & 67.8 & 0.167\\
+\texttt{awq\_proxy} & -- & 386.1 & 201.7 & 0.161\\
+\texttt{admm\_gptq}, task-normalized & 30 & 413.6 & 90.2 & 0.162\\
+\texttt{admm\_gptq}, task-normalized & 60 & 10154.7 & 1698.0 & 0.175\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This changes the experimental conclusion.  The best current ADMM result is not
+the low-\(\rho_0\) task-feasibility run, but the task-normalized online
+controller with early stopping around 20 iterations.  The result also shows
+that deploy perplexity is not monotone in ADMM residual improvement or
+iteration count.  A proof or algorithmic claim for quantization should
+therefore include a quantization-noise or early-stopping floor: beyond a
+moderate number of iterations, the ADMM loop can move weights toward a
+feasible quantized fixed point that is worse for language-model perplexity.
+
+\paragraph{3-bit result.}
+At 3-bit, task-normalized ADMM does not rescue performance.  Its mean
+perplexity is \(3.44\times 10^8\), worse than both \texttt{awq\_proxy}
+\((1.58\times 10^5)\) and \texttt{gptq\_proxy} \((3.21\times 10^6)\).
+Thus, the current method should be positioned as a 4-bit PTQ result; 3-bit
+requires a different projection, grouping policy, mixed precision, or
+fine-tuning step.
+
+\paragraph{OPT-125M transfer check.}
+The current best GPT-2 setting was also tested on \texttt{facebook/opt-125m}:
+4-bit, WikiText-2, seeds \(0,1,2\), \texttt{task\_norm\_magnitude},
+\(\rho_0=1\), and 20 ADMM iterations.  The full-precision baseline was
+perplexity \(27.37\).  In this transfer test, ADMM was stable but did not beat
+the calibrated baselines:
+
+\begin{table}[h]
+\centering
+\caption{OPT-125M WikiText-2 4-bit transfer test, seeds \(0,1,2\).}
+\label{tab:opt125m-transfer}
+\begin{tabular}{lccc}
+\toprule
+Method & PPL mean & PPL std & Mean recon. error\\
+\midrule
+\texttt{fp32} & 27.37 & 0.00 & 0.000\\
+\texttt{awq\_proxy} & \textbf{49.83} & \textbf{0.04} & 0.134\\
+\texttt{gptq\_proxy} & 61.22 & 2.59 & \textbf{0.131}\\
+\texttt{admm\_gptq}, task-normalized & 85.52 & 4.26 & 0.147\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This result weakens any model-agnostic claim that the current online ADMM
+quantizer dominates GPTQ/AWQ.  The strongest defensible statement is narrower:
+on GPT-2 at 4-bit, task-normalized online ADMM with early stopping can match or
+slightly improve over a local GPTQ proxy, but this transfer is not yet
+established on OPT-125M.
+
+\paragraph{Diagnostic sweeps versus online robustness.}
+The \(\rho_0\), controller, and iteration sweeps should be interpreted as
+diagnostics, not as the final proposed algorithm.  A theorem about projected
+online updates of \(u=\log\rho\) supports bounded penalty paths and stability
+of the controller under a chosen online loss.  It does not by itself prove that
+every online loss will find the deploy-optimal quantization regime, nor that
+deploy perplexity is invariant to initialization.  The experiments so far show
+that residual/task-feasibility updates are not initialization-robust in deploy
+quality, while the task-normalized update is substantially more stable on
+GPT-2.  Therefore the proof target should be aligned with the observed
+algorithm:
+\[
+    \text{bounded online penalty control}
+    \quad+\quad
+    \text{task-normalized loss}
+    \quad+\quad
+    \text{early-stopped curvature-aware projection.}
+\]
+The paper should not present the current results as a pure no-tuning guarantee.
+Instead, it should state that the sweeps identify which online loss is
+compatible with deploy quality, after which the chosen controller is evaluated
+across seeds without per-seed \(\rho\) tuning.
+
 \subsection{Next Online Losses to Test}
 
 The next experiments should test online losses that explicitly encode this

@@ -53,7 +53,7 @@ from online_admm_experiments.problems import _maybe_rescale_scaled_dual
 
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results" / "real_model_smoke"
-DEFAULT_CACHE_DIR = Path("/data/yutong/hf_cache")
+DEFAULT_CACHE_DIR = Path("/dataMeR2/yutong/hf_cache")
 
 SMOKE_TEXTS = [
     "Online ADMM adapts the penalty parameter by observing primal and dual residuals.",
@@ -516,6 +516,7 @@ def apply_quantization(
     max_admm_iter: int,
     device: torch.device,
     admm_controller: str = "task_feasibility",
+    admm_rho0: float = 1.0,
 ) -> dict:
     stats = {
         "num_quantized_modules": 0,
@@ -546,7 +547,7 @@ def apply_quantization(
             z = quantize_awq_proxy_t(w, xtx, abs_x_mean, bits)
         elif method == "admm_gptq":
             z, admm_stats = quantize_admm_gptq_t(
-                w, xtx, bits, max_admm_iter, rho0=1.0, controller_name=admm_controller,
+                w, xtx, bits, max_admm_iter, rho0=admm_rho0, controller_name=admm_controller,
             )
             stats["primals"].append(admm_stats["final_primal"])
             stats["duals"].append(admm_stats["final_dual"])
@@ -590,6 +591,13 @@ def parse_args() -> argparse.Namespace:
         choices=list(ADMM_CONTROLLERS),
         default="task_feasibility",
         help="Penalty controller for admm_gptq. See ADMM_CONTROLLERS registry.",
+    )
+    parser.add_argument(
+        "--admm-rho0-list",
+        nargs="+",
+        type=float,
+        default=[1.0],
+        help="Initial rho values to sweep for admm_gptq.",
     )
     parser.add_argument(
         "--methods",
@@ -702,57 +710,70 @@ def main() -> None:
 
         for bits in args.bits_list:
             for method in args.methods:
-                t_start = time.perf_counter()
-                if method == "fp32":
-                    model = base_model
-                    quant_stats = {"num_quantized_modules": 0, "recon_errors": [], "primals": [], "duals": [], "rhos": [], "per_module": []}
-                else:
-                    model = copy.deepcopy(base_model).to(device)
-                    quant_stats = apply_quantization(
-                        model, grams, method, bits, args.max_admm_iter, device,
-                        admm_controller=args.admm_controller,
+                rho0_values = args.admm_rho0_list if method == "admm_gptq" else [None]
+                for admm_rho0 in rho0_values:
+                    t_start = time.perf_counter()
+                    if method == "fp32":
+                        model = base_model
+                        quant_stats = {"num_quantized_modules": 0, "recon_errors": [], "primals": [], "duals": [], "rhos": [], "per_module": []}
+                    else:
+                        model = copy.deepcopy(base_model).to(device)
+                        quant_stats = apply_quantization(
+                            model, grams, method, bits, args.max_admm_iter, device,
+                            admm_controller=args.admm_controller,
+                            admm_rho0=admm_rho0 if admm_rho0 is not None else 1.0,
+                        )
+                    quant_time = time.perf_counter() - t_start
+
+                    metrics = evaluate_loss(model, eval_batches)
+
+                    row = {
+                        "model": model_label,
+                        "corpus": args.corpus,
+                        "device": str(device),
+                        "seed": seed,
+                        "method": method,
+                        "admm_controller": args.admm_controller if method == "admm_gptq" else "",
+                        "admm_rho0": admm_rho0 if method == "admm_gptq" else "",
+                        "bits": bits if method != "fp32" else "",
+                        "loss": metrics["loss"],
+                        "ppl": metrics["ppl"],
+                        "delta_loss": metrics["loss"] - fp32_metrics["loss"],
+                        "delta_ppl": metrics["ppl"] - fp32_metrics["ppl"],
+                        "eval_tokens": metrics["eval_tokens"],
+                        "num_quantized_modules": quant_stats["num_quantized_modules"],
+                        "mean_module_recon_error": float(np.mean(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
+                        "median_module_recon_error": float(np.median(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
+                        "max_module_recon_error": float(np.max(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
+                        "mean_final_primal": float(np.mean(quant_stats["primals"])) if quant_stats["primals"] else 0.0,
+                        "mean_final_dual": float(np.mean(quant_stats["duals"])) if quant_stats["duals"] else 0.0,
+                        "mean_final_rho": float(np.mean(quant_stats["rhos"])) if quant_stats["rhos"] else 0.0,
+                        "quantize_wall_time_sec": quant_time,
+                        "eval_wall_time_sec": metrics["eval_time_sec"],
+                    }
+                    rows.append(row)
+                    for m in quant_stats["per_module"]:
+                        per_module_rows.append({
+                            "seed": seed,
+                            "method": method,
+                            "admm_controller": args.admm_controller if method == "admm_gptq" else "",
+                            "admm_rho0": admm_rho0 if method == "admm_gptq" else "",
+                            "bits": bits,
+                            **m,
+                        })
+
+                    rho0_text = f" rho0={admm_rho0:g}" if method == "admm_gptq" and admm_rho0 is not None else ""
+                    print(
+                        f"[seed={seed} bits={bits}] {method:12s}{rho0_text} ppl={row['ppl']:.3f} Δ={row['delta_ppl']:+.3f} "
+                        f"recon={row['mean_module_recon_error']:.4f} "
+                        f"rho_final={row['mean_final_rho']:.3f} "
+                        f"t_quant={row['quantize_wall_time_sec']:.1f}s"
                     )
-                quant_time = time.perf_counter() - t_start
 
-                metrics = evaluate_loss(model, eval_batches)
-
-                row = {
-                    "model": model_label,
-                    "corpus": args.corpus,
-                    "device": str(device),
-                    "seed": seed,
-                    "method": method,
-                    "bits": bits if method != "fp32" else "",
-                    "loss": metrics["loss"],
-                    "ppl": metrics["ppl"],
-                    "delta_loss": metrics["loss"] - fp32_metrics["loss"],
-                    "delta_ppl": metrics["ppl"] - fp32_metrics["ppl"],
-                    "eval_tokens": metrics["eval_tokens"],
-                    "num_quantized_modules": quant_stats["num_quantized_modules"],
-                    "mean_module_recon_error": float(np.mean(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
-                    "median_module_recon_error": float(np.median(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
-                    "max_module_recon_error": float(np.max(quant_stats["recon_errors"])) if quant_stats["recon_errors"] else 0.0,
-                    "mean_final_primal": float(np.mean(quant_stats["primals"])) if quant_stats["primals"] else 0.0,
-                    "mean_final_dual": float(np.mean(quant_stats["duals"])) if quant_stats["duals"] else 0.0,
-                    "mean_final_rho": float(np.mean(quant_stats["rhos"])) if quant_stats["rhos"] else 0.0,
-                    "quantize_wall_time_sec": quant_time,
-                    "eval_wall_time_sec": metrics["eval_time_sec"],
-                }
-                rows.append(row)
-                for m in quant_stats["per_module"]:
-                    per_module_rows.append({"seed": seed, "method": method, "bits": bits, **m})
-
-                print(
-                    f"[seed={seed} bits={bits}] {method:12s} ppl={row['ppl']:.3f} Δ={row['delta_ppl']:+.3f} "
-                    f"recon={row['mean_module_recon_error']:.4f} "
-                    f"rho_final={row['mean_final_rho']:.3f} "
-                    f"t_quant={row['quantize_wall_time_sec']:.1f}s"
-                )
-
-                # free GPU memory between methods
-                if method != "fp32":
-                    del model
-                    torch.cuda.empty_cache() if device.type == "cuda" else None
+                    # free GPU memory between methods
+                    if method != "fp32":
+                        del model
+                        torch.cuda.empty_cache() if device.type == "cuda" else None
 
     # write outputs
     model_slug = safe_label(model_label)
@@ -763,7 +784,7 @@ def main() -> None:
     # aggregate over seeds for quick readability
     agg: dict[tuple, dict] = {}
     for row in rows:
-        key = (row["method"], row["bits"])
+        key = (row["method"], row["bits"], row["admm_controller"], row["admm_rho0"])
         bucket = agg.setdefault(key, {"ppl": [], "delta_ppl": [], "recon": [], "rho": []})
         bucket["ppl"].append(row["ppl"])
         bucket["delta_ppl"].append(row["delta_ppl"])
@@ -771,11 +792,13 @@ def main() -> None:
         bucket["rho"].append(row["mean_final_rho"])
 
     agg_rows = []
-    for (method, bits), bucket in sorted(agg.items()):
+    for (method, bits, admm_controller, admm_rho0), bucket in sorted(agg.items()):
         agg_rows.append({
             "model": model_label,
             "corpus": args.corpus,
             "method": method,
+            "admm_controller": admm_controller,
+            "admm_rho0": admm_rho0,
             "bits": bits,
             "seeds": len(bucket["ppl"]),
             "ppl_mean": float(np.mean(bucket["ppl"])),
@@ -794,12 +817,14 @@ def main() -> None:
         f"Seeds: `{args.seeds}`  \n"
         f"Bits: `{args.bits_list}`  \n"
         f"Methods: `{args.methods}`  \n"
+        f"ADMM controller: `{args.admm_controller}`  \n"
+        f"ADMM rho0 list: `{args.admm_rho0_list}`  \n"
         f"ADMM iters: `{args.max_admm_iter}`  \n"
         f"fp32 ppl: `{fp32_metrics['ppl']:.3f}` on `{fp32_metrics['eval_tokens']}` eval tokens\n\n"
-        "| method | bits | seeds | ppl_mean ± std | Δppl | mean recon |\n"
-        "|---|---|---|---|---|---|\n"
+        "| method | bits | rho0 | seeds | ppl_mean ± std | Δppl | mean recon |\n"
+        "|---|---|---|---|---|---|---|\n"
         + "\n".join(
-            f"| {r['method']} | {r['bits']} | {r['seeds']} | {r['ppl_mean']:.3f} ± {r['ppl_std']:.3f} | {r['delta_ppl_mean']:+.3f} | {r['recon_mean']:.4f} |"
+            f"| {r['method']} | {r['bits']} | {r['admm_rho0']} | {r['seeds']} | {r['ppl_mean']:.3f} ± {r['ppl_std']:.3f} | {r['delta_ppl_mean']:+.3f} | {r['recon_mean']:.4f} |"
             for r in agg_rows
         )
         + "\n"

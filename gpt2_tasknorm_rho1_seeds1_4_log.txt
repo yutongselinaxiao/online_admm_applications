@@ -1,0 +1,20 @@
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 11672.75it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Token indices sequence length is longer than the specified maximum sequence length for this model (2415650 > 1024). Running this sequence through the model will result in indexing errors
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+[gpt2] clamping --block-size 2048 -> 1024 (model max context)
+[gpt2] fp32 ppl=29.010 loss=3.3676 on 285696 tokens
+[seed=1] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=1 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=4] admm_gptq    rho0=1 ppl=407.674 Δ=+378.664 recon=0.1618 rho_final=0.268 t_quant=195.8s
+[seed=2] calibrated 49 modules on 6422528 tokens in 4.0s
+[seed=2 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=4] admm_gptq    rho0=1 ppl=361.207 Δ=+332.198 recon=0.1617 rho_final=0.267 t_quant=201.0s
+[seed=3] calibrated 49 modules on 6422528 tokens in 4.0s
+[seed=3 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=3 bits=4] admm_gptq    rho0=1 ppl=396.779 Δ=+367.770 recon=0.1617 rho_final=0.269 t_quant=179.9s
+[seed=4] calibrated 49 modules on 6422528 tokens in 2.4s
+[seed=4 bits=4] fp32         ppl=29.010 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=4 bits=4] admm_gptq    rho0=1 ppl=319.267 Δ=+290.257 recon=0.1620 rho_final=0.269 t_quant=166.6s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/gpt2_tasknorm_rho1_seeds1_4

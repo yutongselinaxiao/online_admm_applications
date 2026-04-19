@@ -1,0 +1,20 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 47850.24it/s]
+[facebook/opt-125m] fp32 ppl=27.366 loss=3.3093 on 284672 tokens
+[seed=0] calibrated 73 modules on 19136512 tokens in 2.6s
+[seed=0 bits=4] fp32         ppl=27.366 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=0 bits=4] gptq_proxy   ppl=59.893 Δ=+32.527 recon=0.1309 rho_final=0.000 t_quant=7.5s
+[seed=0 bits=4] awq_proxy    ppl=49.776 Δ=+22.410 recon=0.1336 rho_final=0.000 t_quant=1.5s
+[seed=0 bits=4] admm_gptq    rho0=1 ppl=90.151 Δ=+62.785 recon=0.1466 rho_final=5.497 t_quant=140.6s
+[seed=1] calibrated 73 modules on 19136512 tokens in 2.5s
+[seed=1 bits=4] fp32         ppl=27.366 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=1 bits=4] gptq_proxy   ppl=58.922 Δ=+31.556 recon=0.1306 rho_final=0.000 t_quant=7.3s
+[seed=1 bits=4] awq_proxy    ppl=49.885 Δ=+22.518 recon=0.1336 rho_final=0.000 t_quant=1.5s
+[seed=1 bits=4] admm_gptq    rho0=1 ppl=86.536 Δ=+59.169 recon=0.1467 rho_final=5.472 t_quant=140.7s
+[seed=2] calibrated 73 modules on 19136512 tokens in 2.5s
+[seed=2 bits=4] fp32         ppl=27.366 Δ=+0.000 recon=0.0000 rho_final=0.000 t_quant=0.0s
+[seed=2 bits=4] gptq_proxy   ppl=64.848 Δ=+37.481 recon=0.1303 rho_final=0.000 t_quant=7.4s
+[seed=2 bits=4] awq_proxy    ppl=49.815 Δ=+22.448 recon=0.1337 rho_final=0.000 t_quant=1.5s
+[seed=2 bits=4] admm_gptq    rho0=1 ppl=79.871 Δ=+52.504 recon=0.1466 rho_final=5.478 t_quant=140.9s
+
+Wrote outputs to /home/xiaoyuto/online_admm_applications/results/real_model_smoke/opt125m_tasknorm_iter20_4bit
